@@ -1,0 +1,4073 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vampire Serial Killings</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== 所有之前的CSS样式保持原样 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', '思源黑体', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: #000;
+        }
+        
+        /* 游戏主容器 - 固定1920x1080尺寸，通过缩放适应屏幕 */
+        .game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: 0 0;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+        
+        /* 第二页容器 */
+        .newspaper-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: 0 0;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* ========== 第三页容器 ========== */
+        .invitation-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: 0 0;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* ========== 第四页容器 ========== */
+        .case-intro-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: 0 0;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* ========== 第三页对话框系统 ========== */
+        #invitation-dialog-box {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 1920px;
+            height: 1080px;
+            z-index: 4;
+            opacity: 0; /* 初始不可见，切换页面后会设置为可见 */
+        }
+
+        #invitation-name-box {
+            position: absolute;
+            left: 0px;
+            top: 3px;
+            width: 1920px;
+            height: 1080px;
+            z-index: 5;
+            opacity: 0; /* 初始不可见，切换页面后会设置为可见 */
+        }
+
+        #invitation-character-name {
+            position: absolute;
+            left: 482px;  /* 使用指定的位置 */
+            top: 740px;   /* 使用指定的位置 */
+            width: 144px; /* 使用指定的宽度 */
+            height: 68px; /* 使用指定的高度 */
+            color: #423333 !important; /* 修改：字体颜色改为#423333 - 深棕色 */
+            font-size: 36px !important; /* 修改：字号改为36像素（原28px） */
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 6;
+            opacity: 0; /* 初始不可见，切换页面后会设置为可见 */
+        }
+
+        #invitation-dialog-text {
+            position: absolute;
+            left: 418px;   /* 使用指定的位置 */
+            top: 827px;   /* 使用指定的位置 */
+            width: 1165px; /* 使用指定的宽度 */
+            height: 231px; /* 使用指定的高度 */
+            color: #423333 !important; /* 修改：字体颜色改为#423333 - 深棕色 */
+            font-size: 36px !important; /* 修改：字号改为36像素（原28px） */
+            font-weight: 400;
+            line-height: 1.4;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            z-index: 6;
+            text-align: left;
+            opacity: 0; /* 初始不可见，切换页面后会设置为可见 */
+        }
+        
+        /* ========== 第四页对话框系统 ========== */
+        #case-intro-dialog-box {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 1920px;
+            height: 1080px;
+            z-index: 4;
+            opacity: 0;
+        }
+
+        #case-intro-name-box {
+            position: absolute;
+            left: 0px;
+            top: 3px;
+            width: 1920px;
+            height: 1080px;
+            z-index: 5;
+            opacity: 0;
+        }
+
+        #case-intro-character-name {
+            position: absolute;
+            left: 482px;
+            top: 740px;
+            width: 144px;
+            height: 68px;
+            color: #423333 !important;
+            font-size: 36px !important;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 6;
+            opacity: 0;
+        }
+
+        #case-intro-dialog-text {
+            position: absolute;
+            left: 418px;
+            top: 827px;
+            width: 1165px;
+            height: 231px;
+            color: #423333 !important;
+            font-size: 36px !important;
+            font-weight: 400;
+            line-height: 1.4;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            z-index: 6;
+            text-align: left;
+            opacity: 0;
+        }
+        
+        /* 背景图片 */
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+        }
+        
+        /* ========== 人物立绘系统 ========== */
+        /* 修改：人物立绘全屏显示 */
+        .character-portrait {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            z-index: 4;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .character-portrait img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 修改：使用cover确保图片覆盖整个容器 */
+        }
+        
+        /* 修改：开始游戏 - 去掉按钮样式，改为纯文字 */
+        .start-btn {
+            position: absolute;
+            left: 209px;
+            top: 530px;
+            width: 168px;
+            height: 59px;
+            line-height: 59px;
+            color: rgba(246,219,213,1);
+            font-size: 42px;
+            text-align: center;
+            font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 3;
+            font-weight: 400;
+            padding: 0;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 10px rgba(246,219,213,0.8);
+        }
+        
+        /* 新增：继续游戏文字 */
+        .continue-game {
+            position: absolute;
+            left: 209px;
+            top: 614px;
+            width: 168px;
+            height: 59px;
+            line-height: 59px;
+            color: rgba(246,219,213,1);
+            font-size: 42px;
+            text-align: center;
+            font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+            cursor: pointer;
+            z-index: 3;
+        }
+        
+        .continue-game:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 10px rgba(246,219,213,0.8);
+        }
+        
+        /* 新增：设置文字 */
+        .settings-text {
+            position: absolute;
+            left: 250px;
+            top: 697px;
+            width: 84px;
+            height: 59px;
+            line-height: 59px;
+            color: rgba(246,219,213,1);
+            font-size: 42px;
+            text-align: center;
+            font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+            cursor: pointer;
+            z-index: 3;
+        }
+        
+        .settings-text:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 10px rgba(246,219,213,0.8);
+        }
+        
+        /* 修改：报纸容器 - 全屏显示 */
+        .newspaper-bg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            background-color: transparent;
+            z-index: 3;
+            overflow: hidden;
+            opacity: 0;
+        }
+        
+        /* 修改：报纸图片 - 全屏显示 */
+        .newspaper-img {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: fill;
+            transition: all 0.8s ease;
+            opacity: 1; /* 添加透明度属性 */
+        }
+        
+        /* 报纸渐隐渐现动画效果 - 修改：新增样式 */
+        .newspaper-fade {
+            animation: fadeNewspaper 1.2s ease forwards;
+        }
+        
+        @keyframes fadeNewspaper {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        /* 报纸收起动画效果 - 修改：改为快速淡出效果 */
+        .newspaper-fold {
+            animation: fadeOutNewspaper 0.5s ease forwards;
+        }
+        
+        @keyframes fadeOutNewspaper {
+            0% {
+                opacity: 1;
+                visibility: visible;
+            }
+            100% {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+        
+        /* 对话框 */
+        .dialog-box {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 1920px;
+            height: 1080px;
+            z-index: 4;
+            opacity: 0;
+        }
+        
+        .dialog-bg {
+            position: absolute;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+        }
+        
+        /* 叶警官思考状态头像 */
+        .thinking-state {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+            z-index: 4.5;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        /* 姓名框 */
+        .name-box {
+            position: absolute;
+            left: 0px;
+            top: 3px;
+            width: 1920px;
+            height: 1080px;
+            z-index: 5;
+            opacity: 0;
+        }
+        
+        .name-bg {
+            position: absolute;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+        }
+        
+        /* 角色姓名 */
+        .character-name {
+            position: absolute;
+            left: 482px;
+            top: 740px;
+            width: 144px;
+            height: 68px;
+            color: #423333 !important; /* 修改：字体颜色改为#423333 - 深棕色 */
+            font-size: 36px !important; /* 修改：字号改为36像素（原28px） */
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 6;
+            opacity: 0;
+        }
+        
+        /* 对话内容 - 已调整位置和尺寸 */
+        .dialog-text {
+            position: absolute;
+            left: 418px;  /* 修改为418px */
+            top: 827px;   /* 保持827px不变 */
+            width: 1165px; /* 修改为1165px */
+            height: 231px; /* 保持231px不变 */
+            color: #423333 !important; /* 修改：字体颜色改为#423333 - 深棕色 */
+            font-size: 36px !important; /* 修改：字号改为36像素（原28px） */
+            font-weight: 400;
+            line-height: 1.4;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            z-index: 6;
+            text-align: left;
+            opacity: 1; /* 修改：初始可见，方便调试 */
+        }
+        
+        /* 打字机效果光标 */
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.2em;
+            background-color: #423333 !important; /* 修改：光标颜色也改为#423333 */
+            margin-left: 2px;
+            vertical-align: middle;
+            animation: blink 0.7s infinite;
+        }
+        
+        /* 继续按钮 */
+        .continue-btn {
+            position: absolute;
+            left: 1781px; /* 修改：从 right: 80px 改为 left: 1781px */
+            top: 998px;   /* 修改：从 bottom: 60px 改为 top: 998px */
+            width: 100px; /* 修改：从 150px 改为 100px */
+            height: 54px; /* 修改：从 60px 改为 54px */
+            background-color: #745846;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+             /* 移除原有的 right 和 bottom 属性 */
+                right: auto;
+                bottom: auto;
+        }
+        
+        .continue-btn:hover {
+            background-color: #8a6d5b;
+        }
+        
+        /* 自动播放按钮 */
+        .auto-btn {
+            position: absolute;
+            left: 1673px; /* 修改：从 right: 250px 改为 left: 1673px */
+            top: 998px;   /* 修改：从 bottom: 60px 改为 top: 998px */
+            width: 100px; /* 修改：从 120px 改为 100px */
+            height: 54px; /* 修改：从 60px 改为 54px */
+            background-color: #745846;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+             /* 移除原有的 right 和 bottom 属性 */
+            right: auto;
+            bottom: auto;
+        }
+        
+        .auto-btn:hover {
+            background-color: #8a6d5b;
+        }
+        
+        .auto-btn.active {
+            background-color: #5a4536;
+        }
+        
+        /* ========== 选项按钮样式 ========== */
+        .option-button {
+            position: absolute;
+            background-color: rgba(236,225,207,1);
+            border: 1px solid rgba(187,187,187,1);
+              color: #423333 !important; /* 修改：字体颜色改为#423333 */
+            font-size: 36px !important; /* 修改：字号改为36px */
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 8;
+            opacity: 0;
+            pointer-events: none;
+            border-radius: 4px;
+        }
+        
+        .option-button:hover {
+            background-color: rgba(255, 245, 225, 1);
+            transform: scale(1.05);
+        }
+        
+        /* 修改：按钮容器 - 左侧按钮 */
+        .left-controls-container {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
+        
+        /* 修改：按钮容器 - 右侧按钮（收集系统按钮，初始隐藏） */
+        .right-controls-container {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+            display: none; /* 初始隐藏，收集物品后才显示 */
+        }
+        
+        /* 设置和音乐按钮 */
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            transition: all 0.3s ease;
+            background: rgba(30, 30, 30, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-btn:hover {
+            background: rgba(80, 80, 80, 0.9);
+            transform: scale(1.1);
+        }
+        
+        /* ========== 结局页面样式 ========== */
+        .ending-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: 0 0;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 15;
+            background-color: #000;
+        }
+        
+        .ending-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1000px;
+            color: white;
+            text-align: center;
+            z-index: 16;
+        }
+        
+        .ending-title {
+            font-size: 72px;
+            font-weight: 900;
+            margin-bottom: 40px;
+            color: #c62828;
+        }
+        
+        .ending-text {
+            font-size: 36px;
+            line-height: 1.6;
+            margin-bottom: 60px;
+            color: #e0e0e0;
+        }
+        
+        .restart-btn {
+            padding: 20px 60px;
+            background-color: #745846;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 32px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 40px;
+        }
+        
+        .restart-btn:hover {
+            background-color: #8a6d5b;
+            transform: scale(1.05);
+        }
+        
+        /* 提示信息 */
+        .hint {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 1920px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            z-index: 3;
+            letter-spacing: 1px;
+        }
+        
+        /* 设置面板 */
+        .settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; /* 使用百分比 */
+            max-width: 450px; /* 最大宽度限制 */
+            background-color: rgba(15, 15, 25, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            z-index: 20;
+            display: none;
+
+             /* 响应式调整 */
+    @media (max-width: 768px) {
+        padding: 20px;
+        width: 95%;
+    }
+    
+    @media (max-width: 480px) {
+        padding: 15px;
+        width: 98%;
+    }
+
+        }
+        
+        /* 新增：通用响应式字体大小调整 */
+@media (max-width: 768px) {
+    .character-name,
+    .invitation-character-name,
+    .dialog-text,
+    .invitation-dialog-text,
+    .case-intro-character-name,
+    .case-intro-dialog-text {
+        font-size: 30px !important; /* 修改：在小屏幕上字体改为30px（原24px） */
+         color: #423333 !important; /* 确保在小屏幕上颜色也保持一致 */
+    }
+    
+    .continue-btn,
+    .auto-btn,
+    .case-intro-continue-btn,
+    .case-intro-auto-btn {
+        font-size: 20px !important;
+       /* 响应式调整按钮位置 */
+        left: auto !important;
+        right: 20px !important;
+        top: auto !important;
+        bottom: 20px !important;
+        width: 80px !important;
+        height: 40px !important;
+    }
+    
+    /* 响应式中确保自动和继续按钮并排显示 */
+    .auto-btn,
+    .case-intro-auto-btn {
+        right: 110px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .character-name,
+    .invitation-character-name,
+    .dialog-text,
+    .invitation-dialog-text,
+    .case-intro-character-name,
+    .case-intro-dialog-text {
+        font-size: 24px !important; /* 在更小的屏幕上进一步减小字体 */
+        color: #423333 !important; /* 确保在更小的屏幕上颜色也保持一致 */
+    }
+    
+    .continue-btn,
+    .auto-btn,
+    .case-intro-continue-btn,
+    .case-intro-auto-btn {
+        font-size: 18px !important;
+         /* 响应式调整按钮位置 */
+        left: auto !important;
+        right: 15px !important;
+        top: auto !important;
+        bottom: 15px !important;
+        width: 70px !important;
+        height: 35px !important;
+    }
+    
+    /* 响应式中确保自动和继续按钮并排显示 */
+    .auto-btn,
+    .case-intro-auto-btn {
+        right: 95px !important;
+    }
+}
+        
+        .settings-panel h2 {
+            color: #ffffff;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .settings-option {
+            margin-bottom: 25px;
+        }
+        
+        .settings-option label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .slider-container span {
+            margin: 0 12px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: 700;
+            color: #aaa;
+        }
+        
+        input[type="range"] {
+            flex-grow: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #666;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        
+        .close-btn {
+            display: block;
+            margin: 25px auto 0;
+            padding: 12px 40px;
+            background: rgba(60, 60, 60, 0.9);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .close-btn:hover {
+            background: rgba(80, 80, 80, 0.9);
+        }
+        
+        /* 遮罩层 - 用于弹窗背景 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 15;
+            display: none;
+        }
+        
+        /* 错误提示 */
+        .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        /* 收集提示 */
+        .collection-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            display: none;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        /* 引导提示 */
+        .guide-hint {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 22px;
+            text-align: center;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px 30px;
+            border-radius: 10px;
+            display: none;
+            max-width: 800px;
+            line-height: 1.5;
+            border: 2px solid #8a6d5b;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* =====================================================================
+           物品收集系统界面 - 需要美术优化的CSS区域
+           注意：以下样式可以替换为美术设计的图片和样式
+           ===================================================================== */
+        
+        /* 物品收集系统主容器 */
+        .collection-system {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;;/* 使用百分比而不是固定像素 */
+            max-width: 800px; /* 最大宽度限制 */
+            height: 80%; /* 使用百分比而不是固定像素 */
+            max-height: 600px; /* 最大高度限制 */
+            background-color: rgba(20, 20, 30, 0.97); /* 背景色 - 可替换为背景图片 */
+            border-radius: 10px; /* 圆角 - 可调整 */
+            padding: 20px; /* 内边距 - 可调整 */
+            color: white;
+            z-index: 20;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(120, 100, 80, 0.8); /* 边框 - 可替换为边框图片 */
+
+             /* 响应式调整 */
+    @media (max-width: 768px) {
+        width: 95%;
+        height: 85%;
+        padding: 15px;
+    }
+    
+    @media (max-width: 480px) {
+        width: 98%;
+        height: 90%;
+        padding: 10px;
+    }
+        }
+        
+        /* 收集系统标题栏 */
+        .collection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(120, 100, 80, 0.8); /* 分隔线颜色 - 可调整 */
+        }
+        
+        /* 收集系统标题 - 修改：从"物品收集"改为"我的背包" */
+        .collection-title {
+            font-size: 1.8rem; /* 标题字体大小 - 可调整 */
+            font-weight: 700;
+            color: #d4b89c; /* 标题颜色 - 可调整 */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* 文字阴影 - 可调整 */
+
+              /* 响应式调整 */
+    @media (max-width: 768px) {
+        font-size: 1.6rem;
+    }
+    
+    @media (max-width: 480px) {
+        font-size: 1.4rem;
+    }
+        }
+        
+        /* 关闭按钮 */
+        .close-collection-btn {
+            width: 35px; /* 按钮大小 - 可调整 */
+            height: 35px;
+            border-radius: 50%;
+            background-color: rgba(100, 100, 100, 0.8); /* 按钮背景色 - 可替换为按钮图片 */
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .close-collection-btn:hover {
+            background-color: rgba(150, 150, 150, 0.9); /* 悬停颜色 - 可调整 */
+            transform: scale(1.1);
+        }
+        
+        /* 物品内容区域 */
+        .collection-content {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4列网格 */
+            grid-template-rows: repeat(3, 1fr); /* 3行网格 */
+            gap: 15px; /* 网格间距 - 可调整 */
+            overflow-y: auto; /* 允许垂直滚动 */
+            padding: 10px;
+        }
+        
+        /* 物品栏位样式 */
+        .collection-slot {
+            background-color: rgba(40, 40, 50, 0.8); /* 栏位背景色 - 可替换为栏位图片 */
+            border-radius: 8px; /* 栏位圆角 - 可调整 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 10px;
+            min-height: 120px; /* 最小高度 - 可调整 */
+            border: 2px solid rgba(60, 60, 70, 0.8); /* 栏位边框 - 可调整 */
+
+             /* 响应式调整最小高度 */
+    @media (max-width: 768px) {
+        min-height: 100px;
+        padding: 8px;
+    }
+    
+    @media (max-width: 480px) {
+        min-height: 80px;
+        padding: 6px;
+    }
+
+        }
+        
+        .collection-slot:hover {
+            background-color: rgba(60, 60, 70, 0.9); /* 悬停背景色 - 可调整 */
+            transform: scale(1.05);
+            border-color: rgba(120, 100, 80, 0.8); /* 悬停边框色 - 可调整 */
+        }
+        
+        .collection-slot.has-item {
+            background-color: rgba(70, 60, 50, 0.9); /* 有物品时的背景色 - 可调整 */
+            border-color: rgba(150, 130, 110, 0.8); /* 有物品时的边框色 - 可调整 */
+        }
+        
+        /* 物品图标 - 修改：使用报纸原图缩小显示 */
+        .item-icon {
+            width: 100%; /* 占满容器宽度 */
+            height: 100%; /* 占满容器高度 */
+            object-fit: contain; /* 改为contain以完整显示图标 */
+            max-width: 80px; /* 最大宽度限制 */
+            max-height: 80px; /* 最大高度限制 */
+            border-radius: 4px; /* 稍微圆角 */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* 添加边框 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 添加阴影 */
+
+             /* 响应式调整 */
+    @media (max-width: 768px) {
+        max-width: 60px;
+        max-height: 60px;
+    }
+    
+    @media (max-width: 480px) {
+        max-width: 50px;
+        max-height: 50px;
+    }
+
+        }
+        
+        /* 物品名称 */
+        .item-name {
+            position: absolute;
+            bottom: 5px;
+            color: #e0d0c0; /* 物品名称颜色 - 可调整 */
+            font-size: 14px; /* 字体大小 - 可调整 */
+            text-align: center;
+            width: 100%;
+            word-break: break-word;
+            background-color: rgba(0, 0, 0, 0.6); /* 半透明背景 */
+            padding: 2px 0;
+            border-radius: 0 0 6px 6px; /* 底部圆角 */
+
+             /* 响应式调整字体大小 */
+    @media (max-width: 768px) {
+        font-size: 12px;
+    }
+    
+    @media (max-width: 480px) {
+        font-size: 11px;
+        bottom: 3px;
+    }
+
+        }
+        
+        /* =====================================================================
+           物品查看界面 - 需要美术优化的CSS区域
+           ===================================================================== */
+        
+        /* 物品查看界面主容器 */
+        .item-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 25;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 物品查看图片 */
+        .item-view-image {
+            max-width: 90vw;
+            max-height: 70vh; /* 减小高度，为按钮留空间 */
+            object-fit: contain;
+            margin-bottom: 30px;
+            border: 3px solid rgba(120, 100, 80, 0.8); /* 图片边框 - 可调整 */
+            border-radius: 5px; /* 图片圆角 - 可调整 */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7); /* 图片阴影 - 可调整 */
+        }
+        
+        /* 物品查看关闭按钮 */
+        .item-view-close {
+            padding: 12px 40px;
+            background-color: rgba(100, 100, 100, 0.8); /* 按钮背景色 - 可替换为按钮图片 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .item-view-close:hover {
+            background-color: rgba(130, 130, 130, 0.9); /* 悬停颜色 - 可调整 */
+        }
+        
+        /* =====================================================================
+           信息收集系统界面 - 需要美术优化的CSS区域
+           ===================================================================== */
+        
+        /* 信息收集系统主容器 */
+        .info-system {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; /* 使用百分比而不是固定像素 */
+            max-width: 800px; /* 最大宽度限制 */
+            height: 80%; /* 使用百分比而不是固定像素 */
+            max-height: 600px; /* 最大高度限制 */
+            background-color: rgba(30, 25, 20, 0.97); /* 背景色 - 可替换为背景图片 */
+            border-radius: 10px; /* 圆角 - 可调整 */
+            padding: 20px; /* 内边距 - 可调整 */
+            color: white;
+            z-index: 20;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(120, 100, 80, 0.8); /* 边框 - 可替换为边框图片 */
+             /* 响应式调整 */
+    @media (max-width: 768px) {
+        width: 95%;
+        height: 85%;
+        padding: 15px;
+    }
+    
+    @media (max-width: 480px) {
+        width: 98%;
+        height: 90%;
+        padding: 10px;
+    }
+        }
+        
+        /* 信息内容区域 */
+        .info-content {
+            flex-grow: 1;
+            overflow-y: auto; /* 允许垂直滚动 */
+            padding-right: 10px;
+            padding-left: 10px;
+
+            /* 响应式调整 */
+    @media (max-width: 768px) {
+        padding-right: 8px;
+        padding-left: 8px;
+    }
+        }
+        
+        /* 信息笔记样式 */
+        .info-note {
+            background-color: rgba(50, 45, 40, 0.8); /* 笔记背景色 - 可替换为笔记背景图片 */
+            border-radius: 8px; /* 笔记圆角 - 可调整 */
+            padding: 15px; /* 内边距 - 可调整 */
+            margin-bottom: 15px; /* 下边距 - 可调整 */
+            border-left: 4px solid #8a6d5b; /* 左侧边框 - 可调整 */
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); /* 阴影 - 可调整 */
+
+            /* 响应式调整 */
+    @media (max-width: 768px) {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    @media (max-width: 480px) {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+        }
+        
+        /* 信息笔记标题 */
+        .info-note-title {
+            font-size: 1.3rem; /* 标题字体大小 - 可调整 */
+            font-weight: 700;
+            margin-bottom: 8px; /* 下边距 - 可调整 */
+            color: #d4b89c; /* 标题颜色 - 可调整 */
+
+             /* 响应式调整 */
+    @media (max-width: 768px) {
+        font-size: 1.2rem;
+    }
+    
+    @media (max-width: 480px) {
+        font-size: 1.1rem;
+    }
+
+        }
+        
+        /* 信息笔记内容 */
+        .info-note-content {
+            font-size: 1.1rem; /* 内容字体大小 - 可调整 */
+            line-height: 1.5; /* 行高 - 可调整 */
+            color: #e0d0c0; /* 内容颜色 - 可调整 */
+
+             /* 响应式调整 */
+    @media (max-width: 768px) {
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+    
+    @media (max-width: 480px) {
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+
+        }
+        
+        /* 滚动条样式 - 可自定义 */
+        .collection-content::-webkit-scrollbar,
+        .info-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .collection-content::-webkit-scrollbar-track,
+        .info-content::-webkit-scrollbar-track {
+            background: rgba(40, 40, 50, 0.5);
+            border-radius: 4px;
+        }
+        
+        .collection-content::-webkit-scrollbar-thumb,
+        .info-content::-webkit-scrollbar-thumb {
+            background: rgba(120, 100, 80, 0.8);
+            border-radius: 4px;
+        }
+        
+        .collection-content::-webkit-scrollbar-thumb:hover,
+        .info-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(150, 130, 110, 0.9);
+        }
+        
+        /* 动画定义 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- 第一页 - 开始页面 -->
+    <div class="game-container" id="start-page">
+        <!-- 背景图 -->
+        <img class="bg-image" id="bg-image" src="images/开始页面/start_bg.png" alt="游戏背景">
+        
+        <!-- 修改后的开始游戏 -->
+        <div class="start-btn" id="start-btn">开始游戏</div>
+        
+        <!-- 新增的继续游戏 -->
+        <div class="continue-game" id="continue-game">继续游戏</div>
+        
+        <!-- 新增的设置 -->
+        <div class="settings-text" id="settings-text">设置</div>
+        
+        <!-- 左侧按钮：设置和音乐（上下排列） -->
+        <div class="left-controls-container">
+            <button class="control-btn" id="settings-btn">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="control-btn" id="music-control">
+                <i class="fas fa-volume-up"></i>
+            </button>
+        </div>
+        
+        <!-- 右侧按钮：信息收集系统和物品收集系统（上下排列）- 初始隐藏 -->
+        <div class="right-controls-container" id="right-controls">
+            <!-- 信息收集系统按钮 - 图标位置可替换为本地美术资源 -->
+            <button class="control-btn" id="info-collection-btn">
+                <i class="fas fa-book"></i>
+            </button>
+            <!-- 物品收集系统按钮 - 图标位置可替换为本地美术资源 -->
+            <button class="control-btn" id="item-collection-btn">
+                <i class="fas fa-box"></i>
+            </button>
+        </div>
+        
+        <div class="hint">点击开始按钮进入游戏</div>
+    </div>
+    
+    <!-- 第二页 - 报纸页面 -->
+    <div class="newspaper-container" id="newspaper-page">
+        <!-- 背景图 -->
+        <img class="bg-image" id="newspaper-bg-image" src="images/报纸界面/start_bg.png" alt="报纸背景">
+        
+        <!-- 报纸内容 - 现在全屏显示 -->
+        <div class="newspaper-bg" id="newspaper-content">
+            <img class="newspaper-img" id="newspaper-img" src="images/报纸界面/报纸界面_bg.png" alt="报纸内容">
+        </div>
+        
+        <!-- 对话框 -->
+        <div class="dialog-box" id="dialog-box">
+            <!-- 对话框背景图片 -->
+            <img class="dialog-bg" id="dialog-bg" src="images/对话框.png" alt="对话框背景">
+            
+            <!-- 叶警官思考状态头像 -->
+            <img class="thinking-state" id="thinking-state" src="images/对话状态_思考_普.png" alt="叶警官思考状态">
+        </div>
+        
+        <!-- 姓名框 -->
+        <div class="name-box" id="name-box">
+            <!-- 姓名框背景图片 -->
+            <img class="name-bg" id="name-bg" src="images/姓名框.png" alt="姓名框背景">
+        </div>
+        
+        <!-- 角色姓名 -->
+        <div class="character-name" id="character-name"></div>
+        
+        <!-- 对话内容 -->
+        <div class="dialog-text" id="dialog-text"></div>
+        
+        <!-- 继续按钮 -->
+        <button class="continue-btn" id="continue-btn">
+            继续
+        </button>
+        
+        <!-- 自动播放按钮 -->
+        <button class="auto-btn" id="auto-btn">
+            自动
+        </button>
+        
+        <!-- 左侧按钮：设置和音乐（上下排列） -->
+        <div class="left-controls-container">
+            <button class="control-btn" id="newspaper-settings-btn">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="control-btn" id="newspaper-music-control">
+                <i class="fas fa-volume-up"></i>
+            </button>
+        </div>
+        
+        <!-- 右侧按钮：信息收集系统和物品收集系统（上下排列）- 初始隐藏 -->
+        <div class="right-controls-container" id="newspaper-right-controls">
+            <!-- 信息收集系统按钮 - 图标位置可替换为本地美术资源 -->
+            <button class="control-btn" id="newspaper-info-collection-btn">
+                <i class="fas fa-book"></i>
+            </button>
+            <!-- 物品收集系统按钮 - 图标位置可替换为本地美术资源 -->
+            <button class="control-btn" id="newspaper-item-collection-btn">
+                <i class="fas fa-box"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 第三页 - 邀请加入界面 -->
+    <div class="invitation-container" id="invitation-page">
+        <!-- 背景图 -->
+        <img class="bg-image" id="invitation-bg-image" src="images/邀请加入界面/invite.png" alt="叶警官客厅">
+        
+        <!-- 人物立绘 -->
+         <div class="character-portrait" id="character-portrait">
+        <img id="portrait-image" src="images/人物立绘/叶/叶_普_普.PNG" alt="叶警官立绘">
+    </div>
+        
+         <!-- 对话框系统 -->
+        <div class="dialog-box" id="invitation-dialog-box">
+            <!-- 对话框背景图片 -->
+            <img class="dialog-bg" src="images/对话框.png" alt="对话框背景">
+    </div>
+        
+        <!-- 姓名框 -->
+        <div class="name-box" id="invitation-name-box">
+            <!-- 姓名框背景图片 -->
+            <img class="name-bg" src="images/姓名框.png" alt="姓名框背景">
+    </div>
+        
+        <!-- 角色姓名 -->
+        <div class="character-name" id="invitation-character-name"></div>
+        
+        <!-- 对话内容 -->
+        <div class="dialog-text" id="invitation-dialog-text"></div>
+        
+        <!-- 继续按钮 -->
+        <button class="continue-btn" id="invitation-continue-btn">继续</button>
+        
+        
+        <!-- 自动播放按钮 -->
+        <button class="auto-btn" id="invitation-auto-btn">自动</button>
+        
+        <!-- 选项按钮 -->
+        <button class="option-button" id="option1-btn" style="left: 805px; top: 225px; width: 312px; height: 65px;">
+            让我考虑一下
+        </button>
+        
+        <button class="option-button" id="option2-btn" style="left: 804px; top: 347px; width: 312px; height: 65px;">
+            我加入
+        </button>
+        
+        <!-- 左侧按钮：设置和音乐（上下排列） -->
+        <div class="left-controls-container">
+            <button class="control-btn" id="invitation-settings-btn">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="control-btn" id="invitation-music-control">
+                <i class="fas fa-volume-up"></i>
+            </button>
+        </div>
+        
+        <!-- 右侧按钮：信息收集系统和物品收集系统（上下排列）- 初始隐藏 -->
+        <div class="right-controls-container" id="invitation-right-controls">
+            <!-- 信息收集系统按钮 - 图标位置可替换为本地美术资源 -->
+            <button class="control-btn" id="invitation-info-collection-btn">
+                <i class="fas fa-book"></i>
+            </button>
+            <!-- 物品收集系统按钮 - 图标位置可替换为本地美术资源 -->
+            <button class="control-btn" id="invitation-item-collection-btn">
+                <i class="fas fa-box"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 第四页 - 叶警官办公室-介绍案情前 -->
+    <div class="case-intro-container" id="case-intro-page">
+        <!-- 背景图 -->
+        <img class="bg-image" id="case-intro-bg-image" src="images/介绍案情前/pre案情介绍.png" alt="叶警官办公室">
+        
+        <!-- 人物立绘 -->
+        <div class="character-portrait" id="case-intro-portrait">
+            <img id="case-intro-portrait-image" src="images/人物立绘/叶/叶_普_普.PNG" alt="叶警官立绘">
+        </div>
+        
+        <!-- 对话框系统 -->
+        <div class="dialog-box" id="case-intro-dialog-box">
+            <!-- 对话框背景图片 -->
+            <img class="dialog-bg" src="images/对话框.png" alt="对话框背景">
+        </div>
+        
+        <!-- 姓名框 -->
+        <div class="name-box" id="case-intro-name-box">
+            <!-- 姓名框背景图片 -->
+            <img class="name-bg" src="images/姓名框.png" alt="姓名框背景">
+        </div>
+        
+        <!-- 角色姓名 -->
+        <div class="character-name" id="case-intro-character-name">叶警官</div>
+        
+        <!-- 对话内容 -->
+        <div class="dialog-text" id="case-intro-dialog-text"></div>
+        
+        <!-- 继续按钮 -->
+        <button class="continue-btn" id="case-intro-continue-btn">继续</button>
+        
+        <!-- 自动播放按钮 -->
+        <button class="auto-btn" id="case-intro-auto-btn">自动</button>
+        
+        <!-- 左侧按钮：设置和音乐（上下排列） -->
+        <div class="left-controls-container">
+            <button class="control-btn" id="case-intro-settings-btn">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="control-btn" id="case-intro-music-control">
+                <i class="fas fa-volume-up"></i>
+            </button>
+        </div>
+        
+        <!-- 右侧按钮：信息收集系统和物品收集系统（上下排列）- 初始隐藏 -->
+        <div class="right-controls-container" id="case-intro-right-controls">
+            <!-- 信息收集系统按钮 - 图标位置可替换为本地美术资源 -->
+            <button class="control-btn" id="case-intro-info-collection-btn">
+                <i class="fas fa-book"></i>
+            </button>
+            <!-- 物品收集系统按钮 - 图标位置可替换为本地美术资源 -->
+            <button class="control-btn" id="case-intro-item-collection-btn">
+                <i class="fas fa-box"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 结局页面 -->
+    <div class="ending-container" id="ending-page">
+        <div class="ending-content" id="ending-content">
+            <!-- 结局内容将通过JavaScript动态生成 -->
+        </div>
+    </div>
+    
+    <!-- 设置面板遮罩层 -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+    
+    <!-- 设置面板 -->
+    <div class="settings-panel" id="settings-panel">
+        <h2>游戏设置</h2>
+        
+        <div class="settings-option">
+            <label for="volume">背景音乐音量</label>
+            <div class="slider-container">
+                <span id="volume-value">70</span>
+                <input type="range" id="volume" min="0" max="100" value="70">
+                <span>100</span>
+            </div>
+        </div>
+        
+        <div class="settings-option">
+            <label for="effects">音效音量</label>
+            <div class="slider-container">
+                <span id="effects-value">80</span>
+                <input type="range" id="effects" min="0" max="100" value="80">
+                <span>100</span>
+            </div>
+        </div>
+        
+        <button class="close-btn" id="close-btn">保存设置</button>
+    </div>
+    
+    <!-- 收集提示 -->
+    <div class="collection-hint" id="collection-hint"></div>
+    
+    <!-- 引导提示 -->
+    <div class="guide-hint" id="guide-hint"></div>
+    
+    <!-- 物品收集系统界面 -->
+    <div class="collection-system" id="collection-system">
+        <div class="collection-header">
+            <!-- 修改：标题从"物品收集"改为"我的背包" -->
+            <h2 class="collection-title">我的背包</h2>
+            <button class="close-collection-btn" id="close-collection-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="collection-content" id="collection-content">
+            <!-- 物品栏位将通过JavaScript动态添加 -->
+        </div>
+    </div>
+    
+    <!-- 报纸查看界面 -->
+    <div class="item-view" id="item-view">
+        <img class="item-view-image" id="item-view-image" src="" alt="物品图片">
+        <button class="item-view-close" id="item-view-close">关闭</button>
+    </div>
+    
+    <!-- 信息收集系统界面 -->
+    <div class="info-system" id="info-system">
+        <div class="collection-header">
+            <!-- 修改：标题从"信息收集"改为"我的笔记本" -->
+            <h2 class="collection-title">我的笔记本</h2>
+            <button class="close-collection-btn" id="close-info-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="info-content" id="info-content">
+            <!-- 信息笔记将通过JavaScript动态添加 -->
+        </div>
+    </div>
+    
+    <!-- 错误提示 -->
+    <div class="error-message" id="error-message"></div>
+    
+    <!-- 背景音乐 -->
+    <audio id="bg-music" loop>
+        <source src="audio/开始页面/bgm_main.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 报纸页面背景音乐 -->
+    <audio id="newspaper-bg-music" loop>
+        <source src="audio/报纸界面/bgm_newspaper.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 邀请页面背景音乐 -->
+    <audio id="invitation-bg-music" loop>
+        <source src="audio/邀请加入界面/bgm_invitation.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 案情介绍页面背景音乐 -->
+    <audio id="case-intro-bg-music" loop>
+        <source src="audio/案情介绍/bgm_case_intro.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 打字机音效 -->
+    <audio id="keyboard-sound">
+        <source src="audio/keyboard-sound.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 结局音效 -->
+    <audio id="ending-sound">
+        <source src="audio/ending.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // ========== 页面元素 ==========
+            const startPage = document.getElementById('start-page');
+            const newspaperPage = document.getElementById('newspaper-page');
+            const invitationPage = document.getElementById('invitation-page');
+            const caseIntroPage = document.getElementById('case-intro-page'); // 第四页
+            const endingPage = document.getElementById('ending-page');
+            
+            const startBtn = document.getElementById('start-btn');
+            const continueGameBtn = document.getElementById('continue-game');
+            const settingsTextBtn = document.getElementById('settings-text');
+            const continueBtn = document.getElementById('continue-btn');
+            const autoBtn = document.getElementById('auto-btn');
+            const invitationContinueBtn = document.getElementById('invitation-continue-btn');
+            const invitationAutoBtn = document.getElementById('invitation-auto-btn');
+            const caseIntroContinueBtn = document.getElementById('case-intro-continue-btn'); // 第四页继续按钮
+            const caseIntroAutoBtn = document.getElementById('case-intro-auto-btn'); // 第四页自动按钮
+            
+            // 选项按钮
+            const option1Btn = document.getElementById('option1-btn');
+            const option2Btn = document.getElementById('option2-btn');
+            
+            const settingsBtn = document.getElementById('settings-btn');
+            const newspaperSettingsBtn = document.getElementById('newspaper-settings-btn');
+            const invitationSettingsBtn = document.getElementById('invitation-settings-btn');
+            const caseIntroSettingsBtn = document.getElementById('case-intro-settings-btn'); // 第四页设置按钮
+            
+            const musicControl = document.getElementById('music-control');
+            const newspaperMusicControl = document.getElementById('newspaper-music-control');
+            const invitationMusicControl = document.getElementById('invitation-music-control');
+            const caseIntroMusicControl = document.getElementById('case-intro-music-control'); // 第四页音乐控制按钮
+            
+            const closeBtn = document.getElementById('close-btn');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const settingsPanel = document.getElementById('settings-panel');
+            
+            // 音乐元素
+            const bgMusic = document.getElementById('bg-music');
+            const newspaperBgMusic = document.getElementById('newspaper-bg-music');
+            const invitationBgMusic = document.getElementById('invitation-bg-music');
+            const caseIntroBgMusic = document.getElementById('case-intro-bg-music'); // 第四页背景音乐
+            const keyboardSound = document.getElementById('keyboard-sound');
+            const endingSound = document.getElementById('ending-sound');
+            
+            // 滑块和数值
+            const volumeSlider = document.getElementById('volume');
+            const effectsSlider = document.getElementById('effects');
+            const volumeValue = document.getElementById('volume-value');
+            const effectsValue = document.getElementById('effects-value');
+            
+            const errorMessage = document.getElementById('error-message');
+            
+            // 图片元素
+            const bgImage = document.getElementById('bg-image');
+            const newspaperBgImage = document.getElementById('newspaper-bg-image');
+            const invitationBgImage = document.getElementById('invitation-bg-image');
+            const caseIntroBgImage = document.getElementById('case-intro-bg-image'); // 第四页背景图片
+            const newspaperImg = document.getElementById('newspaper-img');
+            const dialogBg = document.getElementById('dialog-bg');
+            const nameBg = document.getElementById('name-bg');
+            const thinkingState = document.getElementById('thinking-state');
+            
+            // 第三页元素
+            const portraitImage = document.getElementById('portrait-image');
+            const invitationCharacterName = document.getElementById('invitation-character-name');
+            const invitationDialogText = document.getElementById('invitation-dialog-text');
+            
+            // 第四页元素
+            const caseIntroPortraitImage = document.getElementById('case-intro-portrait-image');
+            const caseIntroCharacterName = document.getElementById('case-intro-character-name');
+            const caseIntroDialogText = document.getElementById('case-intro-dialog-text');
+            
+            const characterName = document.getElementById('character-name');
+            const dialogText = document.getElementById('dialog-text');
+            
+            const musicIcon = musicControl.querySelector('i');
+            const newspaperMusicIcon = newspaperMusicControl.querySelector('i');
+            const invitationMusicIcon = invitationMusicControl.querySelector('i');
+            const caseIntroMusicIcon = caseIntroMusicControl.querySelector('i'); // 第四页音乐图标
+            
+            // 新增的收集系统相关元素
+            const infoCollectionBtn = document.getElementById('info-collection-btn');
+            const itemCollectionBtn = document.getElementById('item-collection-btn');
+            const newspaperInfoCollectionBtn = document.getElementById('newspaper-info-collection-btn');
+            const newspaperItemCollectionBtn = document.getElementById('newspaper-item-collection-btn');
+            const invitationInfoCollectionBtn = document.getElementById('invitation-info-collection-btn');
+            const invitationItemCollectionBtn = document.getElementById('invitation-item-collection-btn');
+            const caseIntroInfoCollectionBtn = document.getElementById('case-intro-info-collection-btn'); // 第四页信息收集按钮
+            const caseIntroItemCollectionBtn = document.getElementById('case-intro-item-collection-btn'); // 第四页物品收集按钮
+            
+            const collectionHint = document.getElementById('collection-hint');
+            const guideHint = document.getElementById('guide-hint');
+            const collectionSystem = document.getElementById('collection-system');
+            const closeCollectionBtn = document.getElementById('close-collection-btn');
+            const collectionContent = document.getElementById('collection-content');
+            const itemView = document.getElementById('item-view');
+            const itemViewImage = document.getElementById('item-view-image');
+            const itemViewClose = document.getElementById('item-view-close');
+            const infoSystem = document.getElementById('info-system');
+            const closeInfoBtn = document.getElementById('close-info-btn');
+            const infoContent = document.getElementById('info-content');
+            
+            // 右侧按钮容器（收集系统按钮容器）
+            const rightControls = document.getElementById('right-controls');
+            const newspaperRightControls = document.getElementById('newspaper-right-controls');
+            const invitationRightControls = document.getElementById('invitation-right-controls');
+            const caseIntroRightControls = document.getElementById('case-intro-right-controls'); // 第四页右侧按钮容器
+            
+            // 结局内容容器
+            const endingContent = document.getElementById('ending-content');
+            
+            // ========== 对话数据 ==========
+            // 第二页对话数据
+            const dialogues = [
+                { speaker: "我", text: "暗夜天罚？噬血夺金？最近的八卦新闻又是在搞什么噱头。" },
+                { speaker: "我", text: "等等？那个传说中臭名昭著、为了偷盗黄金不择手段、令警方焦头烂额的黄金贼团，竟然以横尸街头这种草率的方式被终结了吗？" },
+                { speaker: "我", text: "太不可思议了……嫌疑人竟然是吸血鬼？这个世界上真的有吸血鬼存在吗，我想我保持怀疑。" },
+                { speaker: "我", text: "马术赛坛白女王疑似落马？这又是什么震撼事件。哦，原来是字面意思，据悉这位女士要从马上落下来备战陆地上的马拉松……" },
+                { speaker: "我", text: "有时候真是拿水蜜桃日报没办法。不过……这位白女王会不会太漂亮了一点！" },
+                { speaker: "我", text: "不仅马术厉害，现在又要备战马拉松，真是有够自强不息……" },
+                { speaker: "？？？", text: "你认字很全哦？这么闲在马路上看这些八卦报纸？收了报纸帮帮我啊！跟我来！" }
+                
+            ];
+            
+            // 第三页对话数据
+            const invitationDialogues = [
+                { speaker: "叶警官", text: "如你所见，我是这件案子的承办警官，我姓叶。既然你对这件案子这么感兴趣，不如加入我的团队，给我当助手怎么样？不仅能了解到更多案件内幕，说不定还能一睹吸血鬼真容哦。" }
+            ];
+            
+            // 选项1的对话
+            const option1Dialogues = [
+                { speaker: "叶警官", text: "算了，我不喜欢纠结！" }
+            ];
+            
+            // 选项2的对话
+            const option2Dialogues = [
+                { speaker: "叶警官", text: "太好了！欢迎加入！不如我们现在就开始，让我先来带你详细了解一下案情吧！" }
+            ];
+            
+            // 第四页对话数据
+            const caseIntroDialogues = [
+                { speaker: "叶警官", text: "现在呈现在你眼前的，就是目前我们获得的所有线索。" }
+            ];
+            
+            // ========== 游戏状态管理 ==========
+            // 使用一个对象来统一管理所有游戏状态，便于重置
+            const gameState = {
+                // 对话状态
+                currentDialogueIndex: 0,
+                currentInvitationDialogueIndex: 0,
+                currentOptionDialogueIndex: 0,
+                currentCaseIntroDialogueIndex: 0,
+                
+                // 音乐状态
+                isMusicPlaying: false,
+                currentVolume: 0.7,
+                scaleFactor: 1,
+                
+                // 打字机效果状态
+                isTyping: false,
+                typewriterInterval: null,
+                currentText: '',
+                charIndex: 0,
+                typewriterSpeed: 40,
+                lastSoundTime: 0,
+                soundCooldown: 80,
+                
+                // 自动播放状态
+                isAutoPlay: false,
+                autoPlayTimeout: null,
+                autoPlayDelay: 1000,
+                
+                // 收集系统状态
+                collectedItems: [],
+                collectedInfo: [],
+                hasShownCollectionHint: false,
+                
+                // 报纸状态
+                currentNewspaperImage: 'images/报纸界面/报纸界面_bg.png',
+                hasSecondNewspaper: false,
+                isNewspaperAnimating: false,
+                
+                // 引导状态
+                guideStep: 0,
+                guideTimeout: null,
+                hasCompletedGuide: false,
+                isFirstTimePlay: true,
+                
+                // 第三页状态
+                isShowingOptions: false,
+                selectedOption: 0,
+                optionDialogues: [],
+                
+                // 第四页状态
+                isCaseIntroTyping: false
+            };
+            
+            // 简化访问游戏状态的函数
+            function getState(key) {
+                return gameState[key];
+            }
+            
+            function setState(key, value) {
+                gameState[key] = value;
+            }
+            
+            // ========== 初始化函数 ==========
+            function init() {
+                // 首先调整缩放
+                adjustScale();
+                
+                // 设置图片加载处理
+                setupImageHandlers();
+                
+                // 设置事件监听器
+                setupEventListeners();
+                
+                // 设置音乐
+                setupMusic();
+                
+                // 预加载音效
+                preloadSounds();
+                
+                // 初始化收集系统
+                initializeCollectionSystem();
+                
+                // 初始隐藏收集系统按钮
+                hideCollectionButtons();
+                
+                // 窗口大小变化时重新调整缩放
+                window.addEventListener('resize', adjustScale);
+                
+                // 预加载第二张报纸图片
+                preloadNewspaperImage();
+                
+                // 预加载第三页图片
+                preloadInvitationImages();
+                
+                // 预加载第四页图片
+                preloadCaseIntroImages();
+                
+                console.log("游戏初始化完成");
+            }
+            
+            // 调整整体缩放以适应屏幕
+            function adjustScale() {
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
+                
+                // 计算缩放比例
+                const scaleX = screenWidth / 1920;
+                const scaleY = screenHeight / 1080;
+                
+                // 使用较小的比例，确保内容完全显示在屏幕内
+                setState('scaleFactor', Math.min(scaleX, scaleY));
+                const scaleFactor = getState('scaleFactor');
+                
+                // 应用缩放
+                startPage.style.transform = `scale(${scaleFactor})`;
+                newspaperPage.style.transform = `scale(${scaleFactor})`;
+                invitationPage.style.transform = `scale(${scaleFactor})`;
+                caseIntroPage.style.transform = `scale(${scaleFactor})`;
+                endingPage.style.transform = `scale(${scaleFactor})`;
+                
+                // 居中显示
+                const offsetX = (screenWidth - 1920 * scaleFactor) / 2;
+                const offsetY = (screenHeight - 1080 * scaleFactor) / 2;
+                
+                startPage.style.left = `${offsetX}px`;
+                startPage.style.top = `${offsetY}px`;
+                
+                newspaperPage.style.left = `${offsetX}px`;
+                newspaperPage.style.top = `${offsetY}px`;
+                
+                invitationPage.style.left = `${offsetX}px`;
+                invitationPage.style.top = `${offsetY}px`;
+                
+                caseIntroPage.style.left = `${offsetX}px`;
+                caseIntroPage.style.top = `${offsetY}px`;
+                
+                endingPage.style.left = `${offsetX}px`;
+                endingPage.style.top = `${offsetY}px`;
+            }
+            
+            // 设置图片加载处理
+            function setupImageHandlers() {
+                const images = [
+                    { element: bgImage, path: 'images/开始页面/start_bg.png', name: '开始页面背景' },
+                    { element: newspaperBgImage, path: 'images/报纸界面/start_bg.png', name: '报纸页面背景' },
+                    { element: invitationBgImage, path: 'images/邀请加入界面/invite.png', name: '邀请页面背景' },
+                    { element: caseIntroBgImage, path: 'images/介绍案情前/pre案情介绍.png', name: '案情介绍页面背景' },
+                    { element: newspaperImg, path: getState('currentNewspaperImage'), name: '报纸内容' },
+                    { element: dialogBg, path: 'images/对话框.png', name: '对话框' },
+                    { element: nameBg, path: 'images/姓名框.png', name: '姓名框' },
+                    { element: thinkingState, path: 'images/对话状态_思考_普.png', name: '叶警官思考状态头像' },
+                    { element: portraitImage, path: 'images/人物立绘/叶/叶_普_普.PNG', name: '叶警官立绘' },
+                    { element: caseIntroPortraitImage, path: 'images/人物立绘/叶/叶_普_普.PNG', name: '第四页叶警官立绘' }
+                ];
+                
+                images.forEach(img => {
+                    img.element.onload = function() {
+                        console.log(`${img.name}图片加载成功`);
+                    };
+                    
+                    img.element.onerror = function() {
+                        console.error(`${img.name}图片加载失败: ${img.path}`);
+                        showError(`${img.name}图片加载失败，请检查文件路径`);
+                    };
+                });
+            }
+            
+            // 预加载邀请页面图片
+            function preloadInvitationImages() {
+                const images = [
+                    'images/人物立绘/叶/叶_普_普.PNG',
+                    'images/人物立绘/叶/叶_普_生气.PNG',
+                    'images/人物立绘/叶/叶_普_开心.PNG'
+                ];
+                
+                images.forEach(path => {
+                    const img = new Image();
+                    img.src = path;
+                    img.onload = function() {
+                        console.log(`预加载成功: ${path}`);
+                    };
+                    img.onerror = function() {
+                        console.error(`预加载失败: ${path}`);
+                    };
+                });
+            }
+            
+            // 预加载第四页图片
+            function preloadCaseIntroImages() {
+                const images = [
+                    'images/介绍案情前/pre案情介绍.png',
+                    'images/人物立绘/叶/叶_普_普.PNG'
+                ];
+                
+                images.forEach(path => {
+                    const img = new Image();
+                    img.src = path;
+                    img.onload = function() {
+                        console.log(`第四页图片预加载成功: ${path}`);
+                    };
+                    img.onerror = function() {
+                        console.error(`第四页图片预加载失败: ${path}`);
+                    };
+                });
+            }
+            
+            // 预加载第二张报纸图片
+            function preloadNewspaperImage() {
+                const secondNewspaperImage = new Image();
+                secondNewspaperImage.src = 'images/报纸界面/报纸界面_bg_2.png';
+                secondNewspaperImage.onload = function() {
+                    console.log("第二张报纸图片预加载成功");
+                };
+                secondNewspaperImage.onerror = function() {
+                    console.error("第二张报纸图片预加载失败");
+                    showError("第二张报纸图片预加载失败，请检查文件路径: images/报纸界面/报纸界面_bg_2.png");
+                };
+            }
+            
+            // 切换报纸图片（使用渐隐渐现动画）
+            function switchNewspaperImage() {
+                return new Promise((resolve) => {
+                    if (getState('hasSecondNewspaper')) {
+                        resolve();
+                        return;
+                    }
+                    
+                    setState('isNewspaperAnimating', true);
+                    
+                    newspaperImg.classList.add('newspaper-fade');
+                    
+                    setTimeout(() => {
+                        setState('currentNewspaperImage', 'images/报纸界面/报纸界面_bg_2.png');
+                        newspaperImg.src = getState('currentNewspaperImage');
+                        setState('hasSecondNewspaper', true);
+                        
+                        console.log("报纸已切换到第二张图片: " + getState('currentNewspaperImage'));
+                    }, 600);
+                    
+                    setTimeout(() => {
+                        newspaperImg.classList.remove('newspaper-fade');
+                        setState('isNewspaperAnimating', false);
+                        resolve();
+                    }, 1200);
+                });
+            }
+            
+            // 隐藏收集系统按钮
+            function hideCollectionButtons() {
+                rightControls.style.display = 'none';
+                newspaperRightControls.style.display = 'none';
+                invitationRightControls.style.display = 'none';
+                caseIntroRightControls.style.display = 'none';
+            }
+            
+            // 显示收集系统按钮
+            function showCollectionButtons() {
+                rightControls.style.display = 'flex';
+                newspaperRightControls.style.display = 'flex';
+                invitationRightControls.style.display = 'flex';
+                caseIntroRightControls.style.display = 'flex';
+            }
+            
+            // 初始化收集系统
+            function initializeCollectionSystem() {
+                for (let i = 0; i < 12; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'collection-slot';
+                    slot.dataset.slotIndex = i;
+                    
+                    const emptyText = document.createElement('div');
+                    emptyText.textContent = '空';
+                    emptyText.style.color = '#888';
+                    slot.appendChild(emptyText);
+                    
+                    slot.addEventListener('click', function() {
+                        const slotIndex = parseInt(this.dataset.slotIndex);
+                        const collectedItems = getState('collectedItems');
+                        if (collectedItems[slotIndex]) {
+                            showItemView(collectedItems[slotIndex]);
+                        }
+                    });
+                    
+                    collectionContent.appendChild(slot);
+                }
+            }
+            
+            // 更新物品收集系统显示
+            function updateCollectionSystem() {
+                const slots = collectionContent.querySelectorAll('.collection-slot');
+                const collectedItems = getState('collectedItems');
+                
+                slots.forEach((slot, index) => {
+                    slot.innerHTML = '';
+                    slot.className = 'collection-slot';
+                    
+                    if (collectedItems[index]) {
+                        slot.classList.add('has-item');
+                        
+                        const item = collectedItems[index];
+                        const itemIcon = document.createElement('img');
+                        itemIcon.className = 'item-icon';
+                        itemIcon.src = item.image;
+                        itemIcon.alt = item.name;
+                        
+                        const itemName = document.createElement('div');
+                        itemName.className = 'item-name';
+                        itemName.textContent = item.name;
+                        
+                        slot.appendChild(itemIcon);
+                        slot.appendChild(itemName);
+                    } else {
+                        const emptyText = document.createElement('div');
+                        emptyText.textContent = '空';
+                        emptyText.style.color = '#888';
+                        slot.appendChild(emptyText);
+                    }
+                });
+            }
+            
+            // 更新信息收集系统显示
+            function updateInfoSystem() {
+                infoContent.innerHTML = '';
+                const collectedInfo = getState('collectedInfo');
+                
+                collectedInfo.forEach((info, index) => {
+                    const note = document.createElement('div');
+                    note.className = 'info-note';
+                    
+                    const title = document.createElement('div');
+                    title.className = 'info-note-title';
+                    title.textContent = `笔记 ${index + 1}`;
+                    
+                    const content = document.createElement('div');
+                    content.className = 'info-note-content';
+                    content.textContent = info.content;
+                    
+                    note.appendChild(title);
+                    note.appendChild(content);
+                    infoContent.appendChild(note);
+                });
+                
+                if (collectedInfo.length === 0) {
+                    const emptyNote = document.createElement('div');
+                    emptyNote.className = 'info-note';
+                    emptyNote.innerHTML = '<div class="info-note-content">暂无收集到的信息</div>';
+                    infoContent.appendChild(emptyNote);
+                }
+            }
+            
+            // 显示物品查看界面
+            function showItemView(item) {
+                itemViewImage.src = item.image;
+                itemView.style.display = 'flex';
+            }
+            
+            // 显示收集提示
+            function showCollectionHint(message) {
+                collectionHint.textContent = message;
+                collectionHint.style.display = 'block';
+                
+                setTimeout(() => {
+                    collectionHint.style.display = 'none';
+                }, 3000);
+            }
+            
+            // 显示引导提示
+            function showGuideHint(message, duration = 5000) {
+                guideHint.textContent = message;
+                guideHint.style.display = 'block';
+                
+                if (getState('guideTimeout')) {
+                    clearTimeout(getState('guideTimeout'));
+                }
+                
+                const guideTimeout = setTimeout(() => {
+                    guideHint.style.display = 'none';
+                }, duration);
+                setState('guideTimeout', guideTimeout);
+            }
+            
+            // 隐藏引导提示
+            function hideGuideHint() {
+                if (getState('guideTimeout')) {
+                    clearTimeout(getState('guideTimeout'));
+                    setState('guideTimeout', null);
+                }
+                guideHint.style.display = 'none';
+            }
+            
+            // 开始引导流程
+            function startGuideProcess() {
+                if (!getState('isFirstTimePlay')) return; // 只在第一次玩游戏时显示引导
+                
+                if (getState('hasCompletedGuide')) return;
+                
+                setState('guideStep', 1);
+                console.log("开始引导流程，步骤", getState('guideStep'));
+                
+                setTimeout(() => {
+                    showGuideHint("报纸已收集到背包中！点右边第二个按钮！一定要点！！！不然卡关！！正式版我会改！！", 6000);
+                    
+                    const handleBackpackClick = () => {
+                        console.log("玩家点击了背包按钮，进入步骤2");
+                        setState('guideStep', 2);
+                        
+                        setTimeout(() => {
+                            showGuideHint("很好！报纸信息已记录到笔记本中。点背包上面那个按钮！！！一定要点！！！不然卡关！！！正式版我会改！！", 6000);
+                            
+                            const handleNotebookClick = () => {
+                                console.log("玩家点击了笔记本按钮，完成引导");
+                                setState('guideStep', 3);
+                                completeGuideProcess();
+                                
+                                itemCollectionBtn.removeEventListener('click', handleBackpackClick);
+                                infoCollectionBtn.removeEventListener('click', handleNotebookClick);
+                                newspaperItemCollectionBtn.removeEventListener('click', handleBackpackClick);
+                                newspaperInfoCollectionBtn.removeEventListener('click', handleNotebookClick);
+                            };
+                            
+                            infoCollectionBtn.addEventListener('click', handleNotebookClick);
+                            newspaperInfoCollectionBtn.addEventListener('click', handleNotebookClick);
+                            
+                        }, 1000);
+                        
+                        itemCollectionBtn.removeEventListener('click', handleBackpackClick);
+                        newspaperItemCollectionBtn.removeEventListener('click', handleBackpackClick);
+                    };
+                    
+                    itemCollectionBtn.addEventListener('click', handleBackpackClick);
+                    newspaperItemCollectionBtn.addEventListener('click', handleBackpackClick);
+                    
+                }, 0);
+            }
+            
+            // 完成引导流程并跳转到第三页
+            function completeGuideProcess() {
+                setState('hasCompletedGuide', true);
+                hideGuideHint();
+                
+                console.log("引导流程完成，准备跳转到第三页");
+                
+                showCollectionHint("很好！您已经学会了如何使用收集系统。现在让我们继续跟随叶警官调查案件吧！");
+                
+                setTimeout(() => {
+                    switchToInvitationPage();
+                }, 3000);
+            }
+            
+            // ========== 页面切换函数 ==========
+            // 切换到邀请页面
+            function switchToInvitationPage() {
+                // 隐藏第二页
+                newspaperPage.style.opacity = '0';
+                newspaperPage.style.pointerEvents = 'none';
+                
+                // 重置第二页UI状态
+                resetNewspaperPageUI();
+                
+                // 显示第三页
+                invitationPage.style.opacity = '1';
+                invitationPage.style.pointerEvents = 'auto';
+                
+                // 切换音乐
+                newspaperBgMusic.pause();
+                if (getState('isMusicPlaying')) {
+                    invitationBgMusic.currentTime = 0;
+                    invitationBgMusic.play().catch(e => {
+                        console.log("邀请页面音乐播放失败:", e);
+                    });
+                }
+                
+                // 重置第三页状态
+                resetInvitationPage();
+                // 立即显示对话框和姓名框
+                const invitationDialogBox = document.getElementById('invitation-dialog-box');
+                const invitationNameBox = document.getElementById('invitation-name-box');
+    
+                invitationDialogBox.style.opacity = '1';
+                invitationNameBox.style.opacity = '1';
+    
+                // 第三页一开始就隐藏自动和继续按钮（因为叶警官说完话就显示选项）
+                invitationContinueBtn.style.opacity = '0';
+                invitationContinueBtn.style.pointerEvents = 'none';
+                invitationAutoBtn.style.opacity = '0';
+                invitationAutoBtn.style.pointerEvents = 'none';
+
+                // 开始第三页对话
+                setState('currentInvitationDialogueIndex', 0);
+                showInvitationDialogue();
+                
+                console.log("已切换到邀请加入界面");
+            }
+            
+            // 切换到第四页（案情介绍前）
+            function switchToCaseIntroPage() {
+                // 隐藏第三页
+                invitationPage.style.opacity = '0';
+                invitationPage.style.pointerEvents = 'none';
+                
+                // 重置第三页UI状态
+                resetInvitationPageUI();
+                
+                // 显示第四页
+                caseIntroPage.style.opacity = '1';
+                caseIntroPage.style.pointerEvents = 'auto';
+                
+                // 切换音乐
+                invitationBgMusic.pause();
+                if (getState('isMusicPlaying')) {
+                    caseIntroBgMusic.currentTime = 0;
+                    caseIntroBgMusic.play().catch(e => {
+                        console.log("案情介绍页面音乐播放失败:", e);
+                    });
+                }
+                
+                // 重置第四页状态
+                resetCaseIntroPage();
+                
+                // 显示对话框和姓名框
+                const caseIntroDialogBox = document.getElementById('case-intro-dialog-box');
+                const caseIntroNameBox = document.getElementById('case-intro-name-box');
+                
+                caseIntroDialogBox.style.opacity = '1';
+                caseIntroNameBox.style.opacity = '1';
+                
+                // 显示继续按钮和自动按钮
+                caseIntroContinueBtn.style.opacity = '1';
+                caseIntroContinueBtn.style.pointerEvents = 'auto';
+                caseIntroAutoBtn.style.opacity = '1';
+                caseIntroAutoBtn.style.pointerEvents = 'auto';
+                
+                // 开始第四页对话
+                setState('currentCaseIntroDialogueIndex', 0);
+                showCaseIntroDialogue();
+                
+                console.log("已切换到案情介绍页面");
+            }
+            
+            // 重置第二页UI状态
+            function resetNewspaperPageUI() {
+                // 重置对话框和姓名框
+                const dialogBox = document.getElementById('dialog-box');
+                const nameBox = document.getElementById('name-box');
+                const characterName = document.getElementById('character-name');
+                const dialogText = document.getElementById('dialog-text');
+                
+                dialogBox.style.opacity = '0';
+                nameBox.style.opacity = '0';
+                characterName.style.opacity = '0';
+                dialogText.style.opacity = '0';
+                dialogText.innerHTML = '';
+                
+                // 重置继续按钮和自动按钮
+                continueBtn.style.opacity = '0';
+                continueBtn.style.pointerEvents = 'none';
+                continueBtn.textContent = "继续";
+                
+                autoBtn.style.opacity = '0';
+                autoBtn.style.pointerEvents = 'none';
+                autoBtn.classList.remove('active');
+                autoBtn.textContent = "自动";
+                
+                // 重置思考状态
+                thinkingState.style.opacity = '0';
+                
+                // 重置自动播放状态
+                if (getState('isAutoPlay')) {
+                    setState('isAutoPlay', false);
+                    if (getState('autoPlayTimeout')) {
+                        clearTimeout(getState('autoPlayTimeout'));
+                        setState('autoPlayTimeout', null);
+                    }
+                }
+            }
+            
+            // 重置第三页UI状态
+            function resetInvitationPageUI() {
+                // 重置对话框和姓名框
+                const invitationDialogBox = document.getElementById('invitation-dialog-box');
+                const invitationNameBox = document.getElementById('invitation-name-box');
+                const invitationCharacterName = document.getElementById('invitation-character-name');
+                const invitationDialogText = document.getElementById('invitation-dialog-text');
+                
+                invitationDialogBox.style.opacity = '0';
+                invitationNameBox.style.opacity = '0';
+                invitationCharacterName.style.opacity = '0';
+                invitationCharacterName.textContent = '';
+                invitationDialogText.style.opacity = '0';
+                invitationDialogText.innerHTML = '';
+                
+                // 重置继续按钮和自动按钮
+                invitationContinueBtn.style.opacity = '0';
+                invitationContinueBtn.style.pointerEvents = 'none';
+                invitationContinueBtn.textContent = "继续";
+                
+                invitationAutoBtn.style.opacity = '0';
+                invitationAutoBtn.style.pointerEvents = 'none';
+                invitationAutoBtn.classList.remove('active');
+                invitationAutoBtn.textContent = "自动";
+                
+                // 隐藏选项按钮
+                option1Btn.style.opacity = '0';
+                option1Btn.style.pointerEvents = 'none';
+                option2Btn.style.opacity = '0';
+                option2Btn.style.pointerEvents = 'none';
+            }
+            
+            // 重置第三页状态
+            function resetInvitationPage() {
+                // 重置立绘
+                portraitImage.src = 'images/人物立绘/叶/叶_普_普.PNG';
+                
+                // 隐藏选项按钮
+                option1Btn.style.opacity = '0';
+                option1Btn.style.pointerEvents = 'none';
+                option2Btn.style.opacity = '0';
+                option2Btn.style.pointerEvents = 'none';
+
+                // 隐藏自动和继续按钮（第三页叶警官对话不需要这些按钮）
+                invitationContinueBtn.style.opacity = '0';
+                invitationContinueBtn.style.pointerEvents = 'none';
+                invitationAutoBtn.style.opacity = '0';
+                invitationAutoBtn.style.pointerEvents = 'none';
+                
+                // 重置状态
+                setState('isShowingOptions', false);
+                setState('selectedOption', 0);
+                setState('optionDialogues', []);
+                setState('currentInvitationDialogueIndex', 0);
+                setState('currentOptionDialogueIndex', 0);
+                
+                // 重置对话框和姓名框
+                invitationCharacterName.style.opacity = '0';
+                invitationCharacterName.textContent = '';
+                invitationDialogText.style.opacity = '0';
+                invitationDialogText.innerHTML = '';
+                
+                // 重置自动播放
+                if (getState('isAutoPlay')) {
+                    setState('isAutoPlay', false);
+                    invitationAutoBtn.classList.remove('active');
+                    invitationAutoBtn.textContent = "自动";
+                    
+                    if (getState('autoPlayTimeout')) {
+                        clearTimeout(getState('autoPlayTimeout'));
+                        setState('autoPlayTimeout', null);
+                    }
+                }
+            }
+            
+            // 重置第四页状态
+            function resetCaseIntroPage() {
+                // 重置立绘
+                caseIntroPortraitImage.src = 'images/人物立绘/叶/叶_普_普.PNG';
+                
+                // 重置对话框和姓名框
+                caseIntroCharacterName.style.opacity = '0';
+                caseIntroDialogText.style.opacity = '0';
+                caseIntroDialogText.innerHTML = '';
+                
+                // 重置状态
+                setState('currentCaseIntroDialogueIndex', 0);
+                setState('isCaseIntroTyping', false);
+                
+                // 重置自动播放
+                if (getState('isAutoPlay')) {
+                    setState('isAutoPlay', false);
+                    caseIntroAutoBtn.classList.remove('active');
+                    caseIntroAutoBtn.textContent = "自动";
+                    
+                    if (getState('autoPlayTimeout')) {
+                        clearTimeout(getState('autoPlayTimeout'));
+                        setState('autoPlayTimeout', null);
+                    }
+                }
+            }
+            
+            // ========== 第三页对话系统 ==========
+            // 显示第三页对话
+            function showInvitationDialogue() {
+                if (getState('currentInvitationDialogueIndex') < invitationDialogues.length) {
+                    const dialogue = invitationDialogues[getState('currentInvitationDialogueIndex')];
+                    
+                   // 更新角色姓名并显示
+                    invitationCharacterName.textContent = dialogue.speaker;
+                    invitationCharacterName.style.opacity = '1';
+                    
+                    // 设置打字机效果
+                    setState('currentText', dialogue.text);
+                    setState('charIndex', 0);
+                    setState('isTyping', true);
+                    
+                    // 清空对话框内容并显示
+                    invitationDialogText.innerHTML = '';
+                    invitationDialogText.style.opacity = '1';
+                    
+                   // 隐藏继续按钮和自动按钮（叶警官一开始的对话就隐藏）
+                    invitationContinueBtn.style.opacity = '0';
+                    invitationContinueBtn.style.pointerEvents = 'none';
+                    invitationAutoBtn.style.opacity = '0';
+                    invitationAutoBtn.style.pointerEvents = 'none';
+                    
+                    // 开始打字机效果
+                    startInvitationTypewriter();
+                } else {
+                    // 对话结束，显示选项按钮
+                    showOptionButtons();
+                }
+            }
+            
+            // 开始第三页打字机效果
+            function startInvitationTypewriter() {
+               // 清除之前的打字机定时器
+                if (getState('typewriterInterval')) {
+                    clearInterval(getState('typewriterInterval'));
+                }
+                
+                setState('lastSoundTime', 0);
+                // 设置打字机定时器
+                const typewriterInterval = setInterval(() => {
+                    const charIndex = getState('charIndex');
+                    const currentText = getState('currentText');
+                    
+                    if (charIndex < currentText.length) {
+                         // 添加下一个字符
+                        const char = currentText.charAt(charIndex);
+                        invitationDialogText.innerHTML += char;
+                        setState('charIndex', charIndex + 1);
+                        
+                        // 播放打字机音效（控制频率，避免太密集）
+                        const currentTime = Date.now();
+                        const charToPlaySound = char.trim() !== '' && 
+                                                ((charIndex % 2 === 0) || char === '!' || char === '？' || char === '！');
+                        
+                        if (charToPlaySound && currentTime - getState('lastSoundTime') > getState('soundCooldown')) {
+                            playKeyboardSound();
+                            setState('lastSoundTime', currentTime);
+                        }
+                        
+                        // 添加光标
+                        invitationDialogText.innerHTML = currentText.substring(0, charIndex + 1) + '<span class="cursor"></span>';
+                        // 滚动到最新内容
+                        invitationDialogText.scrollTop = invitationDialogText.scrollHeight;
+                    } else {
+                        // 打字完成
+                        finishInvitationTyping();
+                    }
+                }, getState('typewriterSpeed'));
+                
+                setState('typewriterInterval', typewriterInterval);
+            }
+            
+            // 完成第三页打字
+            function finishInvitationTyping() {
+                if (getState('typewriterInterval')) {
+                    clearInterval(getState('typewriterInterval'));
+                    setState('typewriterInterval', null);
+                }
+                
+                setState('isTyping', false);
+
+                // 移除光标
+                invitationDialogText.innerHTML = getState('currentText');
+
+                // 停止键盘音效
+                stopKeyboardSound();
+                
+                // 第三页叶警官对话完成后不显示继续按钮，直接显示选项按钮
+                if (getState('selectedOption') === 0) {
+                    showOptionButtons();
+                } else if (getState('selectedOption') === 2) {
+                    // 选择了选项2，显示继续按钮
+                    invitationContinueBtn.style.opacity = '1';
+                    invitationContinueBtn.style.pointerEvents = 'auto';
+                } else if (getState('selectedOption') === 1) {
+                    // 选项1：叶警官说完"算了，我不喜欢纠结"后，立即跳转到结局一
+                    if (getState('currentOptionDialogueIndex') === getState('optionDialogues').length - 1) {
+                        // 增加一个短暂的延迟，让玩家看到完整的对话
+                        setTimeout(() => {
+                          showEnding("游戏结束！", "看着犹豫不决的你，叶警官说：\"算了，我不喜欢纠结！\"你选择了谨慎行事，没有卷入这场离奇的案件。城市里的吸血鬼案件继续发生，而你始终在思考，如果当时选择加入，会不会有不一样的结局。");
+                        }, 800);
+                    }
+                }
+            }
+            
+            // 显示选项按钮
+            function showOptionButtons() {
+                setState('isShowingOptions', true);
+                
+                // 隐藏继续按钮和自动按钮
+                invitationContinueBtn.style.opacity = '0';
+                invitationContinueBtn.style.pointerEvents = 'none';
+                invitationAutoBtn.style.opacity = '0';
+                invitationAutoBtn.style.pointerEvents = 'none';
+                
+                // 显示选项按钮
+                option1Btn.style.opacity = '1';
+                option1Btn.style.pointerEvents = 'auto';
+                option2Btn.style.opacity = '1';
+                option2Btn.style.pointerEvents = 'auto';
+                
+                console.log("选项按钮已显示");
+            }
+            
+            // 处理选项按钮点击
+            function handleOptionClick(option) {
+                if (getState('selectedOption') !== 0) return; // 防止重复点击
+                
+                setState('selectedOption', option);
+                
+                // 隐藏选项按钮
+                option1Btn.style.opacity = '0';
+                option1Btn.style.pointerEvents = 'none';
+                option2Btn.style.opacity = '0';
+                option2Btn.style.pointerEvents = 'none';
+
+                // 确保继续按钮是隐藏的
+                invitationContinueBtn.style.opacity = '0';
+                invitationContinueBtn.style.pointerEvents = 'none';
+                
+                // 根据选项设置对话
+                if (option === 1) {
+                    setState('optionDialogues', option1Dialogues);
+                    // 切换立绘为生气
+                    portraitImage.src = 'images/人物立绘/叶/叶_普_生气.PNG';
+                    setState('currentOptionDialogueIndex', 0);
+                    showOptionDialogue();
+                } else if (option === 2) {
+                    setState('optionDialogues', option2Dialogues);
+                    // 切换立绘为开心
+                    portraitImage.src = 'images/人物立绘/叶/叶_普_开心.PNG';
+                    setState('currentOptionDialogueIndex', 0);
+                    showOptionDialogue();
+                }
+            }
+            
+            // 显示选项后的对话
+            function showOptionDialogue() {
+                if (getState('currentOptionDialogueIndex') < getState('optionDialogues').length) {
+                    const dialogue = getState('optionDialogues')[getState('currentOptionDialogueIndex')];
+                    
+                    // 在显示对话前，再次确保立绘是正确的
+                    if (getState('selectedOption') === 1) {
+                        portraitImage.src = 'images/人物立绘/叶/叶_普_生气.PNG';
+                    } else if (getState('selectedOption') === 2) {
+                        portraitImage.src = 'images/人物立绘/叶/叶_普_开心.PNG';
+                    }
+                    
+                    invitationCharacterName.textContent = dialogue.speaker;
+                    
+                    setState('currentText', dialogue.text);
+                    setState('charIndex', 0);
+                    setState('isTyping', true);
+                    
+                    invitationDialogText.innerHTML = '';
+                    
+                    startInvitationTypewriter();
+                } else {
+                    // 选项对话结束后
+                    if (getState('selectedOption') === 1) {
+                        // 选项1直接进入结局
+                        setTimeout(() => {
+                            showEnding("结局一：独自离开", "你选择了谨慎行事，没有卷入这场离奇的案件。叶警官对你很失望，但尊重你的选择。城市里的吸血鬼案件继续发生，而你始终在思考，如果当时选择加入，会不会有不一样的结局。");
+                        }, 500);
+                    }
+                    // 选项2的对话结束后，已经在finishInvitationTyping中显示继续按钮
+                }
+            }
+            
+            // ========== 第四页对话系统 ==========
+            // 显示第四页对话
+            function showCaseIntroDialogue() {
+                if (getState('currentCaseIntroDialogueIndex') < caseIntroDialogues.length) {
+                    const dialogue = caseIntroDialogues[getState('currentCaseIntroDialogueIndex')];
+                    
+                    // 更新角色姓名并显示
+                    caseIntroCharacterName.style.opacity = '1';
+                    
+                    // 设置打字机效果
+                    setState('currentText', dialogue.text);
+                    setState('charIndex', 0);
+                    setState('isCaseIntroTyping', true);
+                    
+                    // 清空对话框内容并显示
+                    caseIntroDialogText.innerHTML = '';
+                    caseIntroDialogText.style.opacity = '1';
+                    
+                    // 隐藏继续按钮和自动按钮（打字完成前隐藏）
+                    caseIntroContinueBtn.style.opacity = '0';
+                    caseIntroContinueBtn.style.pointerEvents = 'none';
+                    caseIntroAutoBtn.style.opacity = '0';
+                    caseIntroAutoBtn.style.pointerEvents = 'none';
+                    
+                    // 开始打字机效果
+                    startCaseIntroTypewriter();
+                } else {
+                    // 对话结束
+                    finishCaseIntroTyping();
+                }
+            }
+            
+            // 开始第四页打字机效果
+            function startCaseIntroTypewriter() {
+                // 清除之前的打字机定时器
+                if (getState('typewriterInterval')) {
+                    clearInterval(getState('typewriterInterval'));
+                }
+                
+                setState('lastSoundTime', 0);
+                // 设置打字机定时器
+                const typewriterInterval = setInterval(() => {
+                    const charIndex = getState('charIndex');
+                    const currentText = getState('currentText');
+                    
+                    if (charIndex < currentText.length) {
+                        // 添加下一个字符
+                        const char = currentText.charAt(charIndex);
+                        caseIntroDialogText.innerHTML += char;
+                        setState('charIndex', charIndex + 1);
+                        
+                        // 播放打字机音效（控制频率，避免太密集）
+                        const currentTime = Date.now();
+                        const charToPlaySound = char.trim() !== '' && 
+                                                ((charIndex % 2 === 0) || char === '!' || char === '？' || char === '！');
+                        
+                        if (charToPlaySound && currentTime - getState('lastSoundTime') > getState('soundCooldown')) {
+                            playKeyboardSound();
+                            setState('lastSoundTime', currentTime);
+                        }
+                        
+                        // 添加光标
+                        caseIntroDialogText.innerHTML = currentText.substring(0, charIndex + 1) + '<span class="cursor"></span>';
+                        // 滚动到最新内容
+                        caseIntroDialogText.scrollTop = caseIntroDialogText.scrollHeight;
+                    } else {
+                        // 打字完成
+                        finishCaseIntroTyping();
+                    }
+                }, getState('typewriterSpeed'));
+                
+                setState('typewriterInterval', typewriterInterval);
+            }
+            
+            // 完成第四页打字
+            function finishCaseIntroTyping() {
+                if (getState('typewriterInterval')) {
+                    clearInterval(getState('typewriterInterval'));
+                    setState('typewriterInterval', null);
+                }
+                
+                setState('isCaseIntroTyping', false);
+
+                // 移除光标
+                caseIntroDialogText.innerHTML = getState('currentText');
+
+                // 停止键盘音效
+                stopKeyboardSound();
+                
+                // 显示继续按钮和自动按钮
+                caseIntroContinueBtn.style.opacity = '1';
+                caseIntroContinueBtn.style.pointerEvents = 'auto';
+                caseIntroAutoBtn.style.opacity = '1';
+                caseIntroAutoBtn.style.pointerEvents = 'auto';
+            }
+            
+            // ========== 结局系统 ==========
+            // 显示结局
+            function showEnding(title, text) {
+                // 隐藏所有其他页面
+                startPage.style.opacity = '0';
+                startPage.style.pointerEvents = 'none';
+                newspaperPage.style.opacity = '0';
+                newspaperPage.style.pointerEvents = 'none';
+                invitationPage.style.opacity = '0';
+                invitationPage.style.pointerEvents = 'none';
+                caseIntroPage.style.opacity = '0';
+                caseIntroPage.style.pointerEvents = 'none';
+                
+                // 显示结局页面
+                endingPage.style.opacity = '1';
+                endingPage.style.pointerEvents = 'auto';
+                
+                // 设置结局内容
+                endingContent.innerHTML = `
+                    <h1 class="ending-title">${title}</h1>
+                    <div class="ending-text">${text}</div>
+                    <button class="restart-btn" id="restart-btn">重新开始游戏</button>
+                `;
+                
+                // 添加重新开始按钮事件
+                const restartBtn = document.getElementById('restart-btn');
+                if (restartBtn) {
+                    restartBtn.addEventListener('click', restartGame);
+                } else {
+                    // 如果按钮不存在，添加一个
+                    setTimeout(() => {
+                        const newRestartBtn = document.getElementById('restart-btn');
+                        if (newRestartBtn) {
+                            newRestartBtn.addEventListener('click', restartGame);
+                        }
+                    }, 100);
+                }
+                
+                // 播放结局音效
+                if (getState('isMusicPlaying')) {
+                    invitationBgMusic.pause();
+                    caseIntroBgMusic.pause();
+                    endingSound.currentTime = 0;
+                    endingSound.volume = getState('currentVolume');
+                    endingSound.play().catch(e => {
+                        console.log("结局音效播放失败:", e);
+                    });
+                }
+                
+                console.log("显示结局: " + title);
+            }
+            
+            // 重新开始游戏
+            function restartGame() {
+                // 播放点击音效
+                playClickSound();
+                
+                // 隐藏结局页面
+                endingPage.style.opacity = '0';
+                endingPage.style.pointerEvents = 'none';
+                endingContent.innerHTML = '';
+                
+                // 重置所有状态
+                resetGame();
+                
+                // 显示开始页面
+                startPage.style.opacity = '1';
+                startPage.style.pointerEvents = 'auto';
+                
+                // 停止结局音效，播放开始音乐
+                endingSound.pause();
+                if (getState('isMusicPlaying')) {
+                    bgMusic.currentTime = 0;
+                    bgMusic.play().catch(e => {
+                        console.log("开始页面音乐播放失败:", e);
+                    });
+                }
+                
+                console.log("游戏已重新开始");
+            }
+            
+            // 重置游戏状态 - 完全重写，解决所有问题
+            function resetGame() {
+                // 清除所有定时器
+                if (getState('typewriterInterval')) {
+                    clearInterval(getState('typewriterInterval'));
+                }
+                if (getState('autoPlayTimeout')) {
+                    clearTimeout(getState('autoPlayTimeout'));
+                }
+                if (getState('guideTimeout')) {
+                    clearTimeout(getState('guideTimeout'));
+                }
+                
+                // 重置游戏状态对象到初始值
+                const initialState = {
+                    // 对话状态
+                    currentDialogueIndex: 0,
+                    currentInvitationDialogueIndex: 0,
+                    currentOptionDialogueIndex: 0,
+                    currentCaseIntroDialogueIndex: 0,
+                    
+                    // 音乐状态
+                    isMusicPlaying: getState('isMusicPlaying'), // 保留音乐播放状态
+                    currentVolume: getState('currentVolume'), // 保留音量设置
+                    scaleFactor: getState('scaleFactor'), // 保留缩放比例
+                    
+                    // 打字机效果状态
+                    isTyping: false,
+                    typewriterInterval: null,
+                    currentText: '',
+                    charIndex: 0,
+                    typewriterSpeed: 40,
+                    lastSoundTime: 0,
+                    soundCooldown: 80,
+                    
+                    // 自动播放状态
+                    isAutoPlay: false,
+                    autoPlayTimeout: null,
+                    autoPlayDelay: 1000,
+                    
+                    // 收集系统状态
+                    collectedItems: [],
+                    collectedInfo: [],
+                    hasShownCollectionHint: false,
+                    
+                    // 报纸状态
+                    currentNewspaperImage: 'images/报纸界面/报纸界面_bg.png',
+                    hasSecondNewspaper: false,
+                    isNewspaperAnimating: false,
+                    
+                    // 引导状态 - 重新开始后不显示引导
+                    guideStep: 0,
+                    guideTimeout: null,
+                    hasCompletedGuide: false,
+                    isFirstTimePlay: false, // 重新开始后标记为不是第一次玩
+                    
+                    // 第三页状态
+                    isShowingOptions: false,
+                    selectedOption: 0,
+                    optionDialogues: [],
+                    
+                    // 第四页状态
+                    isCaseIntroTyping: false
+                };
+                
+                // 应用初始状态
+                Object.assign(gameState, initialState);
+                
+                // 重置UI元素
+                resetAllUI();
+                
+                // 更新收集系统显示
+                updateCollectionSystem();
+                updateInfoSystem();
+                
+                // 隐藏收集按钮
+                hideCollectionButtons();
+                
+                console.log("游戏状态已完全重置");
+            }
+            
+            // 重置所有UI元素 - 修复：确保重置所有UI元素的状态
+            function resetAllUI() {
+                // 重置第二页UI
+                characterName.style.opacity = '0';
+                characterName.textContent = '';
+                dialogText.style.opacity = '1'; // 修复：保持可见以便显示对话
+                dialogText.innerHTML = '';
+                thinkingState.style.opacity = '0';
+                
+                // 重置对话框和姓名框 - 修复：清除动画属性，确保重新开始后动画能正常触发
+                const dialogBox = document.getElementById('dialog-box');
+                const nameBox = document.getElementById('name-box');
+                dialogBox.style.opacity = '0';
+                dialogBox.style.animation = ''; // 清除动画属性
+                nameBox.style.opacity = '0';
+                nameBox.style.animation = ''; // 清除动画属性
+                
+                // 重置第三页UI
+                invitationCharacterName.style.opacity = '0';
+                invitationCharacterName.textContent = '';
+                invitationDialogText.style.opacity = '1'; // 修复：保持可见
+                invitationDialogText.innerHTML = '';
+                portraitImage.src = 'images/人物立绘/叶/叶_普_普.PNG';
+                
+                // 重置第三页对话框和姓名框
+                const invitationDialogBox = document.getElementById('invitation-dialog-box');
+                const invitationNameBox = document.getElementById('invitation-name-box');
+                invitationDialogBox.style.opacity = '0';
+                invitationDialogBox.style.animation = ''; // 清除动画属性
+                invitationNameBox.style.opacity = '0';
+                invitationNameBox.style.animation = ''; // 清除动画属性
+                
+                // 重置第四页UI
+                caseIntroCharacterName.style.opacity = '0';
+                caseIntroDialogText.style.opacity = '1';
+                caseIntroDialogText.innerHTML = '';
+                caseIntroPortraitImage.src = 'images/人物立绘/叶/叶_普_普.PNG';
+                
+                // 重置第四页对话框和姓名框
+                const caseIntroDialogBox = document.getElementById('case-intro-dialog-box');
+                const caseIntroNameBox = document.getElementById('case-intro-name-box');
+                caseIntroDialogBox.style.opacity = '0';
+                caseIntroDialogBox.style.animation = ''; // 清除动画属性
+                caseIntroNameBox.style.opacity = '0';
+                caseIntroNameBox.style.animation = ''; // 清除动画属性
+                
+                // 重置按钮状态
+                resetButtons();
+                
+                // 重置报纸图片
+                setState('currentNewspaperImage', 'images/报纸界面/报纸界面_bg.png');
+                newspaperImg.src = getState('currentNewspaperImage');
+                newspaperImg.classList.remove('newspaper-fold');
+                newspaperImg.classList.remove('newspaper-fade');
+                newspaperImg.style.opacity = '1';
+                newspaperImg.style.visibility = 'visible';
+                
+                // 隐藏提示
+                hideGuideHint();
+                collectionHint.style.display = 'none';
+                
+                // 隐藏弹窗
+                modalOverlay.style.display = 'none';
+                settingsPanel.style.display = 'none';
+                collectionSystem.style.display = 'none';
+                infoSystem.style.display = 'none';
+                itemView.style.display = 'none';
+                
+                console.log("所有UI已重置");
+            }
+            
+            // 重置按钮状态 - 修复：确保自动按钮正确显示
+            function resetButtons() {
+                // 第二页按钮
+                continueBtn.style.opacity = '0';
+                continueBtn.style.pointerEvents = 'none';
+                continueBtn.textContent = "继续";
+                continueBtn.style.animation = ''; // 清除动画属性
+                
+                autoBtn.style.opacity = '0';
+                autoBtn.style.pointerEvents = 'none';
+                autoBtn.classList.remove('active');
+                autoBtn.textContent = "自动";
+                autoBtn.style.display = 'flex'; // 修复：确保自动按钮显示
+                autoBtn.style.animation = ''; // 清除动画属性
+                
+                // 第三页按钮
+                invitationContinueBtn.style.opacity = '0';
+                invitationContinueBtn.style.pointerEvents = 'none';
+                invitationContinueBtn.style.animation = ''; // 清除动画属性
+                
+                invitationAutoBtn.style.opacity = '0';
+                invitationAutoBtn.style.pointerEvents = 'none';
+                invitationAutoBtn.classList.remove('active');
+                invitationAutoBtn.textContent = "自动";
+                invitationAutoBtn.style.display = 'flex'; // 修复：确保自动按钮显示
+                invitationAutoBtn.style.animation = ''; // 清除动画属性
+                
+                // 第四页按钮
+                caseIntroContinueBtn.style.opacity = '0';
+                caseIntroContinueBtn.style.pointerEvents = 'none';
+                caseIntroContinueBtn.style.animation = ''; // 清除动画属性
+                
+                caseIntroAutoBtn.style.opacity = '0';
+                caseIntroAutoBtn.style.pointerEvents = 'none';
+                caseIntroAutoBtn.classList.remove('active');
+                caseIntroAutoBtn.textContent = "自动";
+                caseIntroAutoBtn.style.display = 'flex'; // 修复：确保自动按钮显示
+                caseIntroAutoBtn.style.animation = ''; // 清除动画属性
+                
+                // 选项按钮
+                option1Btn.style.opacity = '0';
+                option1Btn.style.pointerEvents = 'none';
+                option2Btn.style.opacity = '0';
+                option2Btn.style.pointerEvents = 'none';
+            }
+            
+            // ========== 事件处理函数 ==========
+            // 设置事件监听器
+            function setupEventListeners() {
+                // 开始按钮点击事件
+                startBtn.addEventListener('click', function() {
+                    playClickSound();
+                    switchToNewspaperPage();
+                });
+                
+                // 继续游戏按钮点击事件
+                continueGameBtn.addEventListener('click', function() {
+                    playClickSound();
+                    // 这里可以添加继续游戏的功能
+                    console.log("继续游戏功能待实现");
+                    // 暂时显示提示
+                    showCollectionHint("继续游戏功能正在开发中...");
+                });
+                
+                // 设置文字按钮点击事件
+                settingsTextBtn.addEventListener('click', function() {
+                    playClickSound();
+                    showSettingsPanel();
+                });
+                
+                // 第二页继续按钮点击事件
+                continueBtn.addEventListener('click', function() {
+                    playClickSound();
+                    
+                    if (getState('isTyping')) {
+                        finishTyping();
+                        return;
+                    }
+                    
+                    if (getState('currentDialogueIndex') === dialogues.length - 1) {
+                        foldNewspaperAndProceed();
+                    } else {
+                        nextDialogue();
+                    }
+                });
+                
+                // 第三页继续按钮点击事件 - 简化逻辑
+                invitationContinueBtn.addEventListener('click', function() {
+                    playClickSound();
+                    
+                    if (getState('isTyping')) {
+                        finishInvitationTyping();
+                        return;
+                    }
+                    
+                    // 如果选择了选项2，切换到第四页
+                    if (getState('selectedOption') === 2) {
+                        switchToCaseIntroPage();
+                    }
+                });
+                
+                // 第四页继续按钮点击事件
+                caseIntroContinueBtn.addEventListener('click', function() {
+                    playClickSound();
+                    
+                    if (getState('isCaseIntroTyping')) {
+                        finishCaseIntroTyping();
+                        return;
+                    }
+                    
+                    // 第四页对话结束后，进入下一页（这里暂时显示提示）
+                    if (getState('currentCaseIntroDialogueIndex') < caseIntroDialogues.length - 1) {
+                          gameState.currentCaseIntroDialogueIndex++;
+                        showCaseIntroDialogue();
+                    } else {
+                          // 保存游戏状态到localStorage
+                            saveGameStateToLocalStorage();
+                        // 跳转到5-6页
+        setTimeout(() => {
+            window.location.href = 'page2.html';
+        }, 500);
+    }
+});
+// 新增：保存游戏状态到localStorage的函数
+function saveGameStateToLocalStorage() {
+    // 保存收集状态
+    localStorage.setItem('vampire_game_collected_items', 
+        JSON.stringify(gameState.collectedItems));
+    localStorage.setItem('vampire_game_collected_info', 
+        JSON.stringify(gameState.collectedInfo));
+    
+    // 保存其他需要传递的状态（可选）
+    localStorage.setItem('vampire_game_has_completed_guide', 
+        JSON.stringify(gameState.hasCompletedGuide));
+    localStorage.setItem('vampire_game_is_first_time_play', 
+        JSON.stringify(gameState.isFirstTimePlay));
+    
+    console.log("游戏状态已保存到localStorage");
+}
+                 
+                
+                // 第二页自动播放按钮点击事件
+                autoBtn.addEventListener('click', function() {
+                    playClickSound();
+                    toggleAutoPlay();
+                });
+                
+                // 第三页自动播放按钮点击事件
+                invitationAutoBtn.addEventListener('click', function() {
+                    playClickSound();
+                    toggleInvitationAutoPlay();
+                });
+                
+                // 第四页自动播放按钮点击事件
+                caseIntroAutoBtn.addEventListener('click', function() {
+                    playClickSound();
+                    toggleCaseIntroAutoPlay();
+                });
+                
+                // 设置按钮点击事件
+                settingsBtn.addEventListener('click', showSettingsPanel);
+                newspaperSettingsBtn.addEventListener('click', showSettingsPanel);
+                invitationSettingsBtn.addEventListener('click', showSettingsPanel);
+                caseIntroSettingsBtn.addEventListener('click', showSettingsPanel);
+                
+                // 音乐控制按钮点击事件
+                musicControl.addEventListener('click', toggleMusic);
+                newspaperMusicControl.addEventListener('click', toggleMusic);
+                invitationMusicControl.addEventListener('click', toggleMusic);
+                caseIntroMusicControl.addEventListener('click', toggleMusic);
+                
+                // 关闭设置面板
+                closeBtn.addEventListener('click', hideSettingsPanel);
+                modalOverlay.addEventListener('click', hideSettingsPanel);
+                
+                // 音量控制
+                volumeSlider.addEventListener('input', updateVolume);
+                
+                // 音效控制
+                effectsSlider.addEventListener('input', updateEffectsVolume);
+                
+                // 收集系统按钮事件
+                if (infoCollectionBtn) infoCollectionBtn.addEventListener('click', showInfoSystem);
+                if (itemCollectionBtn) itemCollectionBtn.addEventListener('click', showCollectionSystem);
+                if (newspaperInfoCollectionBtn) newspaperInfoCollectionBtn.addEventListener('click', showInfoSystem);
+                if (newspaperItemCollectionBtn) newspaperItemCollectionBtn.addEventListener('click', showCollectionSystem);
+                if (invitationInfoCollectionBtn) invitationInfoCollectionBtn.addEventListener('click', showInfoSystem);
+                if (invitationItemCollectionBtn) invitationItemCollectionBtn.addEventListener('click', showCollectionSystem);
+                if (caseIntroInfoCollectionBtn) caseIntroInfoCollectionBtn.addEventListener('click', showInfoSystem);
+                if (caseIntroItemCollectionBtn) caseIntroItemCollectionBtn.addEventListener('click', showCollectionSystem);
+                
+                // 关闭收集系统
+                closeCollectionBtn.addEventListener('click', hideCollectionSystem);
+                closeInfoBtn.addEventListener('click', hideInfoSystem);
+                
+                // 关闭物品查看界面
+                itemViewClose.addEventListener('click', function() {
+                    itemView.style.display = 'none';
+                });
+                
+                // 点击遮罩层关闭所有弹窗
+                modalOverlay.addEventListener('click', function() {
+                    hideCollectionSystem();
+                    hideInfoSystem();
+                    hideSettingsPanel();
+                    itemView.style.display = 'none';
+                });
+                
+                // 选项按钮事件
+                option1Btn.addEventListener('click', function() {
+                    playClickSound();
+                    handleOptionClick(1);
+                });
+                
+                option2Btn.addEventListener('click', function() {
+                    playClickSound();
+                    handleOptionClick(2);
+                });
+                
+                // 选项按钮鼠标悬停事件
+                option1Btn.addEventListener('mouseenter', function() {
+                    // 如果已经选择了选项，不执行悬停效果
+                    if (getState('selectedOption') !== 0) return;
+                    
+                    // 切换立绘为生气
+                    portraitImage.src = 'images/人物立绘/叶/叶_普_生气.PNG';
+                    
+                    // 更新对话内容
+                    invitationCharacterName.textContent = "我";
+                    invitationDialogText.innerHTML = "这会不会有点太危险恐怖了？拜托，那可是吸血鬼！我想我需要再考虑一下。";
+                });
+                
+                option1Btn.addEventListener('mouseleave', function() {
+                    // 如果已经选择了选项，不执行离开效果
+                    if (getState('selectedOption') !== 0) return;
+                    
+                    // 切换回普通立绘
+                    portraitImage.src = 'images/人物立绘/叶/叶_普_普.PNG';
+                    
+                    // 恢复原来的对话内容
+                    invitationCharacterName.textContent = "叶警官";
+                    invitationDialogText.innerHTML = getState('currentText');
+                });
+                
+                option2Btn.addEventListener('mouseenter', function() {
+                    // 如果已经选择了选项，不执行悬停效果
+                    if (getState('selectedOption') !== 0) return;
+                    
+                    // 切换立绘为开心
+                    portraitImage.src = 'images/人物立绘/叶/叶_普_开心.PNG';
+                    
+                    // 更新对话内容
+                    invitationCharacterName.textContent = "我";
+                    invitationDialogText.innerHTML = "一起破案？离奇的案情，传说中的吸血鬼，简直是完全新奇的体验！";
+                });
+                
+                option2Btn.addEventListener('mouseleave', function() {
+                    // 如果已经选择了选项，不执行离开效果
+                    if (getState('selectedOption') !== 0) return;
+                    
+                    // 切换回普通立绘
+                    portraitImage.src = 'images/人物立绘/叶/叶_普_普.PNG';
+                    
+                    // 恢复原来的对话内容
+                    invitationCharacterName.textContent = "叶警官";
+                    invitationDialogText.innerHTML = getState('currentText');
+                });
+                
+                // 键盘快捷键
+                document.addEventListener('keydown', handleKeyboardShortcuts);
+            }
+            
+            // 切换第三页自动播放
+            function toggleInvitationAutoPlay() {
+                setState('isAutoPlay', !getState('isAutoPlay'));
+                
+                if (getState('isAutoPlay')) {
+                    invitationAutoBtn.classList.add('active');
+                    invitationAutoBtn.textContent = "停止";
+                    
+                    // 如果当前对话已经显示完成且不是选项状态，立即开始下一条
+                    if (!getState('isTyping') && !getState('isShowingOptions') && getState('selectedOption') === 0) {
+                        scheduleNextInvitationAutoDialogue();
+                    }
+                } else {
+                    invitationAutoBtn.classList.remove('active');
+                    invitationAutoBtn.textContent = "自动";
+                    
+                    if (getState('autoPlayTimeout')) {
+                        clearTimeout(getState('autoPlayTimeout'));
+                        setState('autoPlayTimeout', null);
+                    }
+                }
+            }
+            
+            // 切换第四页自动播放
+            function toggleCaseIntroAutoPlay() {
+                setState('isAutoPlay', !getState('isAutoPlay'));
+                
+                if (getState('isAutoPlay')) {
+                    caseIntroAutoBtn.classList.add('active');
+                    caseIntroAutoBtn.textContent = "停止";
+                    
+                    // 如果当前对话已经显示完成，立即开始下一条
+                    if (!getState('isCaseIntroTyping')) {
+                        scheduleNextCaseIntroAutoDialogue();
+                    }
+                } else {
+                    caseIntroAutoBtn.classList.remove('active');
+                    caseIntroAutoBtn.textContent = "自动";
+                    
+                    if (getState('autoPlayTimeout')) {
+                        clearTimeout(getState('autoPlayTimeout'));
+                        setState('autoPlayTimeout', null);
+                    }
+                }
+            }
+            
+            // 安排下一条第三页自动对话
+            function scheduleNextInvitationAutoDialogue(customDelay = null) {
+                if (getState('autoPlayTimeout')) {
+                    clearTimeout(getState('autoPlayTimeout'));
+                }
+                
+                const delay = customDelay || getState('autoPlayDelay');
+                
+                const autoPlayTimeout = setTimeout(() => {
+                    if (getState('isAutoPlay') && !getState('isShowingOptions') && getState('selectedOption') === 0) {
+                        setState('currentInvitationDialogueIndex', getState('currentInvitationDialogueIndex') + 1);
+                        showInvitationDialogue();
+                    }
+                }, delay);
+                
+                setState('autoPlayTimeout', autoPlayTimeout);
+            }
+            
+            // 安排下一条第四页自动对话
+            function scheduleNextCaseIntroAutoDialogue(customDelay = null) {
+                if (getState('autoPlayTimeout')) {
+                    clearTimeout(getState('autoPlayTimeout'));
+                }
+                
+                const delay = customDelay || getState('autoPlayDelay');
+                
+                const autoPlayTimeout = setTimeout(() => {
+                    if (getState('isAutoPlay') && getState('currentCaseIntroDialogueIndex') < caseIntroDialogues.length - 1) {
+                        setState('currentCaseIntroDialogueIndex', getState('currentCaseIntroDialogueIndex') + 1);
+                        showCaseIntroDialogue();
+                    }
+                }, delay);
+                
+                setState('autoPlayTimeout', autoPlayTimeout);
+            }
+            
+            // 显示错误信息
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            // 报纸收起动画并进入下一步
+            function foldNewspaperAndProceed() {
+                playClickSound();
+                
+                continueBtn.style.opacity = '0';
+                continueBtn.style.pointerEvents = 'none';
+                autoBtn.style.opacity = '0';
+                autoBtn.style.pointerEvents = 'none';
+                
+                newspaperImg.style.opacity = '1';
+                newspaperImg.style.visibility = 'visible';
+                
+                newspaperImg.classList.add('newspaper-fold');
+                
+                // 只有在第一次玩游戏时才显示引导
+                if (getState('isFirstTimePlay')) {
+                    startGuideProcess();
+                } else {
+                    // 不是第一次玩，直接跳转到第三页
+                    setTimeout(() => {
+                        switchToInvitationPage();
+                    }, 1000);
+                }
+                
+                setTimeout(() => {
+                    newspaperImg.classList.remove('newspaper-fold');
+                    
+                    newspaperImg.style.opacity = '0';
+                    newspaperImg.style.visibility = 'hidden';
+                    
+                    addNewspapersToCollection();
+                    
+                    addNewspaperInfoToCollection();
+                    
+                    // 显示收集系统按钮
+                    showCollectionButtons();
+                    
+                    console.log("报纸收起动画完成，报纸已收集");
+                    
+                }, 500);
+            }
+            
+            // 将两张报纸添加到物品收集系统
+            function addNewspapersToCollection() {
+                const collectedItems = getState('collectedItems');
+                const alreadyCollectedFirst = collectedItems.some(item => item.id === 'newspaper_1');
+                const alreadyCollectedSecond = collectedItems.some(item => item.id === 'newspaper_2');
+                
+                if (!alreadyCollectedFirst) {
+                    for (let i = 0; i < 12; i++) {
+                        if (!collectedItems[i]) {
+                            collectedItems[i] = {
+                                id: 'newspaper_1',
+                                name: '报纸（头版）',
+                                image: 'images/报纸界面/报纸界面_bg.png',
+                            };
+                            break;
+                        }
+                    }
+                }
+                
+                if (!alreadyCollectedSecond && getState('hasSecondNewspaper')) {
+                    for (let i = 0; i < 12; i++) {
+                        if (!collectedItems[i]) {
+                            collectedItems[i] = {
+                                id: 'newspaper_2',
+                                name: '报纸（体育版）',
+                                image: 'images/报纸界面/报纸界面_bg_2.png',
+                            };
+                            break;
+                        }
+                    }
+                }
+                
+                console.log("报纸已添加到物品收集系统，共" + collectedItems.filter(item => item.id.includes('newspaper')).length + "张报纸");
+            }
+            
+            // 将报纸信息添加到信息收集系统
+            function addNewspaperInfoToCollection() {
+                const collectedInfo = getState('collectedInfo');
+                const info1Exists = collectedInfo.some(info => 
+                    info.content === "城中发生了杀人事件，市民怀疑是吸血鬼所为。");
+                const info2Exists = collectedInfo.some(info => 
+                    info.content === "白姓马术冠军在备战马拉松。");
+                
+                if (!info1Exists) {
+                    collectedInfo.push({
+                        id: 'info1',
+                        content: "城中发生了杀人事件，市民怀疑是吸血鬼所为。"
+                    });
+                }
+                
+                if (!info2Exists) {
+                    collectedInfo.push({
+                        id: 'info2',
+                        content: "白姓马术冠军在备战马拉松。"
+                    });
+                }
+                
+                console.log("报纸信息已添加到信息收集系统");
+            }
+            
+            // 设置音乐
+            function setupMusic() {
+                const currentVolume = getState('currentVolume');
+                bgMusic.volume = currentVolume;
+                newspaperBgMusic.volume = currentVolume;
+                invitationBgMusic.volume = currentVolume;
+                caseIntroBgMusic.volume = currentVolume;
+                endingSound.volume = currentVolume;
+                keyboardSound.volume = 0.3;
+                
+                tryAutoPlayMusic();
+                
+                bgMusic.addEventListener('error', function() {
+                    console.error("开始页面背景音乐加载失败");
+                    showError("开始页面背景音乐加载失败，请检查文件路径");
+                });
+                
+                newspaperBgMusic.addEventListener('error', function() {
+                    console.error("报纸页面背景音乐加载失败");
+                    showError("报纸页面背景音乐加载失败，请检查文件路径");
+                });
+                
+                invitationBgMusic.addEventListener('error', function() {
+                    console.error("邀请页面背景音乐加载失败");
+                    showError("邀请页面背景音乐加载失败，请检查文件路径");
+                });
+                
+                caseIntroBgMusic.addEventListener('error', function() {
+                    console.error("案情介绍页面背景音乐加载失败");
+                    showError("案情介绍页面背景音乐加载失败，请检查文件路径");
+                });
+                
+                keyboardSound.addEventListener('error', function() {
+                    console.error("打字机音效加载失败");
+                    showError("打字机音效加载失败，请检查文件路径: audio/keyboard-sound.mp3");
+                });
+                
+                endingSound.addEventListener('error', function() {
+                    console.error("结局音效加载失败");
+                });
+            }
+            
+            // 尝试自动播放音乐
+            function tryAutoPlayMusic() {
+                bgMusic.play().then(() => {
+                    console.log("背景音乐自动播放成功");
+                    setState('isMusicPlaying', true);
+                    updateMusicIcons();
+                }).catch(error => {
+                    console.log("背景音乐自动播放被阻止，需要用户交互");
+                    setState('isMusicPlaying', false);
+                    updateMusicIcons();
+                    
+                    const playOnInteraction = () => {
+                        if (getState('isMusicPlaying')) {
+                            bgMusic.play().then(() => {
+                                console.log("通过用户交互成功播放音乐");
+                                document.removeEventListener('click', playOnInteraction);
+                                document.removeEventListener('keydown', playOnInteraction);
+                            });
+                        }
+                    };
+                    
+                    document.addEventListener('click', playOnInteraction);
+                    document.addEventListener('keydown', playOnInteraction);
+                });
+            }
+            
+            // 预加载音效
+            function preloadSounds() {
+                const clickSound = new Audio();
+                clickSound.src = 'audio/click.mp3';
+                clickSound.preload = 'auto';
+                
+                const startSound = new Audio();
+                startSound.src = 'audio/begining.mp3';
+                startSound.preload = 'auto';
+                
+                keyboardSound.preload = 'auto';
+                
+                const flipSound = new Audio();
+                flipSound.src = 'audio/flip.mp3';
+                flipSound.preload = 'auto';
+            }
+            
+            // 播放点击音效
+            function playClickSound() {
+                try {
+                    const clickSound = new Audio('audio/click.mp3');
+                    const effectsVolume = parseInt(effectsValue.textContent) / 100;
+                    clickSound.volume = effectsVolume;
+                    clickSound.play().catch(e => {
+                        console.log("点击音效播放失败:", e);
+                    });
+                } catch(e) {
+                    console.log("点击音效播放出错:", e);
+                }
+            }
+            
+            // 切换到报纸页面 - 修复：确保重新开始后动画正常触发
+            function switchToNewspaperPage() {
+                try {
+                    const startSound = new Audio('audio/begining.mp3');
+                    const effectsVolume = parseInt(effectsValue.textContent) / 100;
+                    startSound.volume = effectsVolume;
+                    startSound.play().catch(e => {
+                        console.log("开始音效播放失败:", e);
+                    });
+                } catch(e) {
+                    console.log("开始音效播放出错:", e);
+                }
+                
+                setState('currentNewspaperImage', 'images/报纸界面/报纸界面_bg.png');
+                setState('hasSecondNewspaper', false);
+                newspaperImg.src = getState('currentNewspaperImage');
+                
+                newspaperImg.style.opacity = '1';
+                newspaperImg.style.visibility = 'visible';
+                newspaperImg.classList.remove('newspaper-fold');
+                newspaperImg.classList.remove('newspaper-fade');
+                
+                startPage.style.opacity = '0';
+                
+                setTimeout(() => {
+                    startPage.style.pointerEvents = 'none';
+                    
+                    newspaperPage.style.opacity = '1';
+                    newspaperPage.style.pointerEvents = 'auto';
+                    
+                    bgMusic.pause();
+                    newspaperBgMusic.currentTime = 0;
+                    if (getState('isMusicPlaying')) {
+                        newspaperBgMusic.play().catch(e => {
+                            console.log("报纸页面音乐播放失败:", e);
+                        });
+                    }
+                    
+                    setState('currentDialogueIndex', 0);
+                    
+                    thinkingState.style.opacity = '0';
+                    
+                    const newspaperContent = document.getElementById('newspaper-content');
+                    newspaperContent.style.animation = 'fadeIn 1s ease forwards';
+                    
+                    setTimeout(() => {
+                        const dialogBox = document.getElementById('dialog-box');
+                        const nameBox = document.getElementById('name-box');
+                        const continueBtn = document.getElementById('continue-btn');
+                        const autoBtn = document.getElementById('auto-btn');
+                        
+                        // 修复：重新设置动画，确保重新开始后动画正常
+                        dialogBox.style.animation = 'fadeIn 0.8s ease forwards';
+                        nameBox.style.animation = 'fadeIn 0.8s ease forwards';
+                        
+                        showFirstDialogue();
+                        
+                        setTimeout(() => {
+                            // 修复：重新设置按钮动画
+                            continueBtn.style.animation = 'fadeIn 0.8s ease forwards';
+                            autoBtn.style.animation = 'fadeIn 0.8s ease forwards';
+                        }, 300);
+                    }, 1500);
+                }, 500);
+            }
+            
+            // 显示第一个对话 - 修复：确保重新开始后动画正常
+            function showFirstDialogue() {
+                if (getState('currentDialogueIndex') < dialogues.length) {
+                    const dialogue = dialogues[getState('currentDialogueIndex')];
+                    
+                    characterName.textContent = dialogue.speaker;
+
+                    // 修改：当说话人是"叶警官"或"？？？"时显示思考状态头像
+                    if (dialogue.speaker === "叶警官" || dialogue.speaker === "？？？") {
+                    thinkingState.style.opacity = '1';
+                    } else {
+                    thinkingState.style.opacity = '0';
+                    }
+
+                    // 修复：重新设置动画，确保重新开始后动画正常
+                    characterName.style.animation = 'fadeIn 0.8s ease forwards';
+                    
+                    setState('currentText', dialogue.text);
+                    setState('charIndex', 0);
+                    setState('isTyping', true);
+                    
+                    dialogText.innerHTML = '';
+                    
+                    continueBtn.style.opacity = '0';
+                    continueBtn.style.pointerEvents = 'none';
+                    
+                    // 修复：确保自动按钮可见且可点击
+                    autoBtn.style.opacity = '1';
+                    autoBtn.style.pointerEvents = 'auto';
+                    autoBtn.style.display = 'flex';
+                    
+                    startTypewriter();
+                    
+                    updateButtonStates();
+                }
+            }
+            
+            // 更新对话
+            function updateDialogue() {
+                if (getState('currentDialogueIndex') < dialogues.length) {
+                    const dialogue = dialogues[getState('currentDialogueIndex')];
+                    
+                    characterName.textContent = dialogue.speaker;
+                    
+                    if (dialogue.speaker === "叶警官" || dialogue.speaker === "？？？") {
+                        thinkingState.style.opacity = '1';
+                    } else {
+                        thinkingState.style.opacity = '0';
+                    }
+                    
+                    if (getState('currentDialogueIndex') === 3 && !getState('hasSecondNewspaper')) {
+                        characterName.style.opacity = '1';
+                        
+                        switchNewspaperImage().then(() => {
+                            setState('currentText', dialogue.text);
+                            setState('charIndex', 0);
+                            setState('isTyping', true);
+                            
+                            dialogText.innerHTML = '';
+                            
+                            continueBtn.style.opacity = '0';
+                            continueBtn.style.pointerEvents = 'none';
+                            
+                            // 修复：确保自动按钮可见
+                            autoBtn.style.opacity = '1';
+                            autoBtn.style.pointerEvents = 'auto';
+                            
+                            startTypewriter();
+                            
+                            updateButtonStates();
+                        });
+                    } else {
+                        setState('currentText', dialogue.text);
+                        setState('charIndex', 0);
+                        setState('isTyping', true);
+                        
+                        dialogText.innerHTML = '';
+                        
+                        continueBtn.style.opacity = '0';
+                        continueBtn.style.pointerEvents = 'none';
+                        
+                        // 修复：确保自动按钮可见
+                        autoBtn.style.opacity = '1';
+                        autoBtn.style.pointerEvents = 'auto';
+                        
+                        startTypewriter();
+                        
+                        updateButtonStates();
+                    }
+                }
+            }
+            
+            // 更新按钮状态 - 修复：确保自动按钮正确显示
+            function updateButtonStates() {
+                const dialogue = dialogues[getState('currentDialogueIndex')];
+                
+                if (dialogue.speaker === "叶警官") {
+                    autoBtn.style.opacity = '0';
+                    autoBtn.style.pointerEvents = 'none';
+                    autoBtn.style.display = 'none';
+                    
+                    if (getState('isAutoPlay')) {
+                        setState('isAutoPlay', false);
+                        if (getState('autoPlayTimeout')) {
+                            clearTimeout(getState('autoPlayTimeout'));
+                            setState('autoPlayTimeout', null);
+                        }
+                    }
+                } else {
+                    autoBtn.style.display = 'flex';
+                    autoBtn.style.opacity = '1'; // 修复：确保自动按钮可见
+                    autoBtn.style.pointerEvents = 'auto'; // 修复：确保自动按钮可点击
+                }
+                
+                if (getState('currentDialogueIndex') === dialogues.length - 1) {
+                    continueBtn.textContent = "跟她走";
+                } else {
+                    continueBtn.textContent = "继续";
+                }
+            }
+            
+            // 开始打字机效果
+            function startTypewriter() {
+                if (getState('typewriterInterval')) {
+                    clearInterval(getState('typewriterInterval'));
+                }
+                
+                setState('lastSoundTime', 0);
+                
+                const typewriterInterval = setInterval(() => {
+                    const charIndex = getState('charIndex');
+                    const currentText = getState('currentText');
+                    
+                    if (charIndex < currentText.length) {
+                        const char = currentText.charAt(charIndex);
+                        dialogText.innerHTML += char;
+                        setState('charIndex', charIndex + 1);
+                        
+                        const currentTime = Date.now();
+                        const charToPlaySound = char.trim() !== '' && 
+                                                ((charIndex % 2 === 0) || char === '!' || char === '？' || char === '！');
+                        
+                        if (charToPlaySound && currentTime - getState('lastSoundTime') > getState('soundCooldown')) {
+                            playKeyboardSound();
+                            setState('lastSoundTime', currentTime);
+                        }
+                        
+                        dialogText.innerHTML = currentText.substring(0, charIndex + 1) + '<span class="cursor"></span>';
+                        
+                        dialogText.scrollTop = dialogText.scrollHeight;
+                    } else {
+                        finishTyping();
+                    }
+                }, getState('typewriterSpeed'));
+                
+                setState('typewriterInterval', typewriterInterval);
+            }
+            
+            // 完成打字
+            function finishTyping() {
+                if (getState('typewriterInterval')) {
+                    clearInterval(getState('typewriterInterval'));
+                    setState('typewriterInterval', null);
+                }
+                
+                setState('isTyping', false);
+                
+                dialogText.innerHTML = getState('currentText');
+                
+                stopKeyboardSound();
+                
+                continueBtn.style.animation = 'fadeIn 0.5s ease forwards';
+                continueBtn.style.pointerEvents = 'auto';
+                
+                updateButtonStates();
+                
+                if (getState('isAutoPlay') && getState('currentDialogueIndex') < dialogues.length - 1 && dialogues[getState('currentDialogueIndex')].speaker !== "叶警官") {
+                    const delay = getState('currentDialogueIndex') === 3 ? getState('autoPlayDelay') + 500 : getState('autoPlayDelay');
+                    scheduleNextAutoDialogue(delay);
+                }
+            }
+            
+            // 播放键盘音效
+            function playKeyboardSound() {
+                try {
+                    keyboardSound.currentTime = 0;
+                    
+                    const effectsVolume = parseInt(effectsValue.textContent) / 100;
+                    keyboardSound.volume = effectsVolume * 0.3;
+                    
+                    keyboardSound.play().catch(e => {
+                        console.log("键盘音效播放失败:", e);
+                    });
+                } catch(e) {
+                    console.log("键盘音效播放出错:", e);
+                }
+            }
+            
+            // 停止键盘音效
+            function stopKeyboardSound() {
+                try {
+                    keyboardSound.pause();
+                    keyboardSound.currentTime = 0;
+                } catch(e) {
+                    console.log("停止键盘音效时出错:", e);
+                }
+            }
+            
+            // 切换自动播放模式
+            function toggleAutoPlay() {
+                console.log("切换自动播放模式，当前状态:", getState('isAutoPlay'));
+                setState('isAutoPlay', !getState('isAutoPlay'));
+                
+                if (getState('isAutoPlay')) {
+                    autoBtn.classList.add('active');
+                    autoBtn.textContent = "停止";
+                    
+                    if (!getState('isTyping') && getState('currentDialogueIndex') < dialogues.length && dialogues[getState('currentDialogueIndex')].speaker !== "叶警官") {
+                        scheduleNextAutoDialogue();
+                    }
+                } else {
+                    autoBtn.classList.remove('active');
+                    autoBtn.textContent = "自动";
+                    
+                    if (getState('autoPlayTimeout')) {
+                        clearTimeout(getState('autoPlayTimeout'));
+                        setState('autoPlayTimeout', null);
+                    }
+                }
+            }
+            
+            // 安排下一条自动对话
+            function scheduleNextAutoDialogue(customDelay = null) {
+                if (getState('autoPlayTimeout')) {
+                    clearTimeout(getState('autoPlayTimeout'));
+                }
+                
+                const delay = customDelay || getState('autoPlayDelay');
+                
+                const autoPlayTimeout = setTimeout(() => {
+                    if (getState('isAutoPlay') && getState('currentDialogueIndex') < dialogues.length - 1) {
+                        if (dialogues[getState('currentDialogueIndex') + 1].speaker === "叶警官") {
+                            setState('isAutoPlay', false);
+                            autoBtn.classList.remove('active');
+                            autoBtn.textContent = "自动";
+                        } else {
+                            setState('currentDialogueIndex', getState('currentDialogueIndex') + 1);
+                            updateDialogue();
+                        }
+                    } else if (getState('currentDialogueIndex') >= dialogues.length - 1) {
+                        setState('isAutoPlay', false);
+                        autoBtn.classList.remove('active');
+                        autoBtn.textContent = "自动";
+                    }
+                }, delay);
+                
+                setState('autoPlayTimeout', autoPlayTimeout);
+            }
+            
+            // 下一条对话
+            function nextDialogue() {
+                if (getState('currentDialogueIndex') < dialogues.length - 1) {
+                    setState('currentDialogueIndex', getState('currentDialogueIndex') + 1);
+                    updateDialogue();
+                } else {
+                    console.log("对话结束，等待玩家点击'跟她走'");
+                }
+            }
+            
+            // 显示物品收集系统
+            function showCollectionSystem() {
+                const collectedItems = getState('collectedItems');
+                if (collectedItems.length === 0) {
+                    return;
+                }
+                
+                playClickSound();
+                updateCollectionSystem();
+                collectionSystem.style.display = 'flex';
+                modalOverlay.style.display = 'block';
+            }
+            
+            // 隐藏物品收集系统
+            function hideCollectionSystem() {
+                playClickSound();
+                collectionSystem.style.display = 'none';
+                modalOverlay.style.display = 'none';
+            }
+            
+            // 显示信息收集系统
+            function showInfoSystem() {
+                const collectedInfo = getState('collectedInfo');
+                if (collectedInfo.length === 0) {
+                    return;
+                }
+                
+                playClickSound();
+                updateInfoSystem();
+                infoSystem.style.display = 'flex';
+                modalOverlay.style.display = 'block';
+            }
+            
+            // 隐藏信息收集系统
+            function hideInfoSystem() {
+                playClickSound();
+                infoSystem.style.display = 'none';
+                modalOverlay.style.display = 'none';
+            }
+            
+            // 显示设置面板
+            function showSettingsPanel() {
+                playClickSound();
+                modalOverlay.style.display = 'block';
+                settingsPanel.style.display = 'block';
+                
+                if (getState('isMusicPlaying')) {
+                    bgMusic.pause();
+                    newspaperBgMusic.pause();
+                    invitationBgMusic.pause();
+                    caseIntroBgMusic.pause();
+                }
+                
+                if (getState('isAutoPlay')) {
+                    setState('isAutoPlay', false);
+                    autoBtn.classList.remove('active');
+                    autoBtn.textContent = "自动";
+                    
+                    if (getState('autoPlayTimeout')) {
+                        clearTimeout(getState('autoPlayTimeout'));
+                        setState('autoPlayTimeout', null);
+                    }
+                }
+            }
+            
+            // 隐藏设置面板
+            function hideSettingsPanel() {
+                playClickSound();
+                modalOverlay.style.display = 'none';
+                settingsPanel.style.display = 'none';
+                
+                if (getState('isMusicPlaying')) {
+                    if (newspaperPage.style.opacity === '1') {
+                        newspaperBgMusic.play().catch(e => {
+                            console.log("恢复报纸页面音乐失败:", e);
+                        });
+                    } else if (invitationPage.style.opacity === '1') {
+                        invitationBgMusic.play().catch(e => {
+                            console.log("恢复邀请页面音乐失败:", e);
+                        });
+                    } else if (caseIntroPage.style.opacity === '1') {
+                        caseIntroBgMusic.play().catch(e => {
+                            console.log("恢复案情介绍页面音乐失败:", e);
+                        });
+                    } else {
+                        bgMusic.play().catch(e => {
+                            console.log("恢复开始页面音乐失败:", e);
+                        });
+                    }
+                }
+            }
+            
+            // 切换音乐播放状态
+            function toggleMusic() {
+                playClickSound();
+                setState('isMusicPlaying', !getState('isMusicPlaying'));
+                
+                if (getState('isMusicPlaying')) {
+                    if (newspaperPage.style.opacity === '1') {
+                        newspaperBgMusic.play().catch(e => {
+                            console.log("播放报纸页面音乐失败:", e);
+                            setState('isMusicPlaying', false);
+                        });
+                    } else if (invitationPage.style.opacity === '1') {
+                        invitationBgMusic.play().catch(e => {
+                            console.log("播放邀请页面音乐失败:", e);
+                            setState('isMusicPlaying', false);
+                        });
+                    } else if (caseIntroPage.style.opacity === '1') {
+                        caseIntroBgMusic.play().catch(e => {
+                            console.log("播放案情介绍页面音乐失败:", e);
+                            setState('isMusicPlaying', false);
+                        });
+                    } else {
+                        bgMusic.play().catch(e => {
+                            console.log("播放开始页面音乐失败:", e);
+                            setState('isMusicPlaying', false);
+                        });
+                    }
+                } else {
+                    bgMusic.pause();
+                    newspaperBgMusic.pause();
+                    invitationBgMusic.pause();
+                    caseIntroBgMusic.pause();
+                }
+                
+                updateMusicIcons();
+            }
+            
+            // 更新音乐图标
+            function updateMusicIcons() {
+                if (getState('isMusicPlaying')) {
+                    musicIcon.className = 'fas fa-volume-up';
+                    newspaperMusicIcon.className = 'fas fa-volume-up';
+                    invitationMusicIcon.className = 'fas fa-volume-up';
+                    caseIntroMusicIcon.className = 'fas fa-volume-up';
+                } else {
+                    musicIcon.className = 'fas fa-volume-mute';
+                    newspaperMusicIcon.className = 'fas fa-volume-mute';
+                    invitationMusicIcon.className = 'fas fa-volume-mute';
+                    caseIntroMusicIcon.className = 'fas fa-volume-mute';
+                }
+            }
+            
+            // 更新音量
+            function updateVolume() {
+                const currentVolume = this.value / 100;
+                setState('currentVolume', currentVolume);
+                bgMusic.volume = currentVolume;
+                newspaperBgMusic.volume = currentVolume;
+                invitationBgMusic.volume = currentVolume;
+                caseIntroBgMusic.volume = currentVolume;
+                endingSound.volume = currentVolume;
+                volumeValue.textContent = this.value;
+                
+                if (currentVolume === 0) {
+                    musicIcon.className = 'fas fa-volume-mute';
+                    newspaperMusicIcon.className = 'fas fa-volume-mute';
+                    invitationMusicIcon.className = 'fas fa-volume-mute';
+                    caseIntroMusicIcon.className = 'fas fa-volume-mute';
+                } else if (currentVolume < 0.5) {
+                    musicIcon.className = 'fas fa-volume-down';
+                    newspaperMusicIcon.className = 'fas fa-volume-down';
+                    invitationMusicIcon.className = 'fas fa-volume-down';
+                    caseIntroMusicIcon.className = 'fas fa-volume-down';
+                } else {
+                    musicIcon.className = 'fas fa-volume-up';
+                    newspaperMusicIcon.className = 'fas fa-volume-up';
+                    invitationMusicIcon.className = 'fas fa-volume-up';
+                    caseIntroMusicIcon.className = 'fas fa-volume-up';
+                }
+            }
+            
+            // 更新音效音量
+            function updateEffectsVolume() {
+                effectsValue.textContent = this.value;
+            }
+            
+            // 处理键盘快捷键
+            function handleKeyboardShortcuts(e) {
+                if (e.key === 'Escape') {
+                    if (settingsPanel.style.display === 'block') {
+                        hideSettingsPanel();
+                    } else if (collectionSystem.style.display === 'flex') {
+                        hideCollectionSystem();
+                    } else if (infoSystem.style.display === 'flex') {
+                        hideInfoSystem();
+                    } else if (itemView.style.display === 'flex') {
+                        itemView.style.display = 'none';
+                    }
+                }
+                
+                if ((e.key === ' ' || e.key === 'Enter') && e.target === document.body) {
+                    e.preventDefault();
+                    
+                    if (newspaperPage.style.opacity === '1') {
+                        continueBtn.click();
+                    } else if (invitationPage.style.opacity === '1' && !getState('isShowingOptions')) {
+                        invitationContinueBtn.click();
+                    } else if (caseIntroPage.style.opacity === '1') {
+                        caseIntroContinueBtn.click();
+                    } else {
+                        startBtn.click();
+                    }
+                }
+                
+                if ((e.key === 'i' || e.key === 'I') && newspaperPage.style.opacity === '1' && rightControls.style.display === 'flex') {
+                    e.preventDefault();
+                    showCollectionSystem();
+                }
+                
+                if ((e.key === 'n' || e.key === 'N') && newspaperPage.style.opacity === '1' && rightControls.style.display === 'flex') {
+                    e.preventDefault();
+                    showInfoSystem();
+                }
+                
+                if ((e.key === 'a' || e.key === 'A') && newspaperPage.style.opacity === '1' && autoBtn.style.display !== 'none') {
+                    e.preventDefault();
+                    autoBtn.click();
+                }
+            }
+            
+            // 初始化应用
+            init();
+        });
+    </script>
+</body>
+</html>

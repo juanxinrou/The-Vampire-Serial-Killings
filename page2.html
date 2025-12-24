@@ -1,0 +1,3794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圣诞特辑</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== 基础样式（与主游戏一致） ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', '思源黑体', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: #000;
+        }
+        
+        /* 游戏主容器 - 固定1920x1080尺寸 */
+        .game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: 0 0;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+        
+        /* 第五页容器 */
+        .case-detail-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: 0 0;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 5;
+        }
+        
+        /* 第六页容器 */
+        .christmas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            transform-origin: 0 0;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* 背景图片 */
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+            z-index: 1;
+        }
+        
+        /* ========== 第五页特定样式 ========== */
+        /* 案件照片显示区域 */
+        .case-image {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        /* 报纸飞入效果 */
+        .newspaper-flyin {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: contain;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+            transition: all 0.8s ease;
+            pointer-events: none;
+        }
+        
+        .newspaper-flyin.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        /* 可点击区域（红圈标记） */
+        .clickable-area {
+            position: absolute;
+            border: 3px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 20;
+            transition: border-color 0.3s ease;
+        }
+        
+        .clickable-area.active {
+            border-color: red;
+            background-color: rgba(255, 0, 0, 0.2);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+        
+        /* 红圈标记（点击后显示的圆圈） */
+        .red-circle {
+            position: absolute;
+            border: 3px solid red;
+            border-radius: 50%;
+            box-shadow: 0 0 10px red;
+            z-index: 18;
+            pointer-events: none;
+            display: none;
+        }
+        
+        /* 错误提示符号 */
+        .error-symbol {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 0, 0, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 50px;
+            font-weight: bold;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeInOut 1s ease forwards;
+        }
+        
+        /* 拼图区域 */
+        .puzzle-container {
+            position: absolute;
+            width: 1920px;
+            height: 1080px;
+            z-index: 18;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .puzzle-piece {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            cursor: move;
+            z-index: 19;
+            transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease, opacity 0.5s ease;
+        }
+        
+        .puzzle-piece.dragging {
+            opacity: 0.9;
+            z-index: 30;
+            transform: scale(1.05);
+        }
+        
+        .puzzle-piece.correct {
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        /* 拼图目标位置 */
+        .puzzle-target {
+            position: absolute;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            z-index: 18;
+        }
+        
+        /* 完整暗巷图片 */
+        .dark-alley-image {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+            z-index: 17;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        /* 嫌疑人画像 */
+        .suspect-image {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: contain;
+            z-index: 17;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* 高光特效 */
+.highlight-effect {
+    position: absolute;
+    border: 3px solid #FFD700;
+    border-radius: 5px;
+    box-shadow: 0 0 20px 5px #FFD700, 0 0 30px 10px rgba(255, 215, 0, 0.5);
+    z-index: 18;
+    pointer-events: none;
+    opacity: 0;
+    display: none;  /* 确保初始不显示 */
+    animation: highlightPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes highlightPulse {
+    0% {
+        opacity: 0.3;
+        box-shadow: 0 0 10px 2px #FFD700, 0 0 15px 5px rgba(255, 215, 0, 0.3);
+    }
+    100% {
+        opacity: 0.8;
+        box-shadow: 0 0 20px 5px #FFD700, 0 0 30px 10px rgba(255, 215, 0, 0.5);
+    }
+}
+        
+        /* 匿名信 */
+        .anonymous-letter {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: contain;
+            z-index: 11;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        /* 解谜GIF - 修改为隐藏时不加载 */
+        .decrypt-gif {
+            position: absolute;
+            left: 477px;
+            top: 137px;
+            width: 960px;
+            height: 540px;
+            object-fit: contain;
+            z-index: 17;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        
+        /* 输入框容器 - 特殊定位在横线处 */
+        .input-container {
+            position: absolute;
+            left: 418px;
+            top: 827px;
+            width: 1165px;
+            height: 231px;
+            z-index: 40;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 30px;
+            pointer-events: none;
+        }
+        
+        .word-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .word-input {
+            position: absolute;
+            left: 760px;
+            top: -28px;
+            width: 300px;
+            height: 60px;
+            padding: 0 10px;
+            font-size: 36px;
+            border: none;
+            background-color: transparent;
+            color: #423333;
+            text-align: left;
+            outline: none;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-weight: 400;
+            line-height: 1.4;
+            pointer-events: auto;
+            opacity: 0;
+        }
+        
+        .word-input.active {
+            opacity: 1;
+        }
+        
+        /* 提交按钮（通用） */
+        .submit-btn {
+            position: absolute;
+            left: 821px;
+            top: 780px;
+            width: 200px;
+            height: 100px;
+            background-color: #745846;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 25;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .submit-btn:hover {
+            background-color: #8a6d5b;
+        }
+        
+        /* ========== 第六页特定样式 ========== */
+        /* 圣诞袜 - 修改为全屏显示 */
+        .christmas-sock {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+            z-index: 11;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+        
+        .christmas-sock.show {
+            opacity: 1;
+        }
+        
+        /* 压暗效果 */
+        .dim-overlay {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        /* 圣诞快乐弹窗 */
+        .christmas-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            background-color: rgba(20, 20, 30, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            color: white;
+            text-align: center;
+            z-index: 30;
+            opacity: 0;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid #c62828;
+        }
+        
+        .christmas-popup h2 {
+            color: #c62828;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .christmas-popup p {
+            font-size: 28px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .christmas-popup .highlight {
+            color: #FFD700;
+            font-weight: 700;
+        }
+        
+        /* ========== 对话框系统（第五页和第六页共用） ========== */
+        /* 对话框系统 */
+        .dialog-box {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 1920px;
+            height: 1080px;
+            z-index: 12;
+            opacity: 1;
+        }
+        
+        .dialog-bg {
+            position: absolute;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+        }
+        
+        /* 姓名框 */
+        .name-box {
+            position: absolute;
+            left: 0px;
+            top: 3px;
+            width: 1920px;
+            height: 1080px;
+            z-index: 13;
+            opacity: 1;
+        }
+        
+        .name-bg {
+            position: absolute;
+            width: 1920px;
+            height: 1080px;
+            object-fit: cover;
+        }
+        
+        /* 角色姓名 */
+        .character-name {
+            position: absolute;
+            left: 482px;
+            top: 740px;
+            width: 144px;
+            height: 68px;
+            color: #423333 !important;
+            font-size: 36px !important;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 14;
+            opacity: 1;
+        }
+        
+        /* 对话内容 */
+        .dialog-text {
+            position: absolute;
+            left: 418px;
+            top: 827px;
+            width: 1165px;
+            height: 231px;
+            color: #423333 !important;
+            font-size: 36px !important;
+            font-weight: 400;
+            line-height: 1.4;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            z-index: 15;
+            text-align: left;
+            opacity: 1;
+        }
+        
+        /* 打字机效果光标 */
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.2em;
+            background-color: #423333 !important;
+            margin-left: 2px;
+            vertical-align: middle;
+            animation: blink 0.7s infinite;
+        }
+        
+        /* 继续按钮 */
+        .continue-btn {
+            position: absolute;
+            right: 80px;
+            bottom: 60px;
+            width: 150px;
+            height: 60px;
+            background-color: #745846;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+        
+        .continue-btn.wide-btn {
+            width: 180px !important;
+            font-size: 22px !important;
+        }
+        
+        .continue-btn:hover {
+            background-color: #8a6d5b;
+        }
+        
+        /* 自动播放按钮 */
+        .auto-btn {
+            position: absolute;
+            right: 250px;
+            bottom: 60px;
+            width: 120px;
+            height: 60px;
+            background-color: #745846;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+        
+        .auto-btn:hover {
+            background-color: #8a6d5b;
+        }
+        
+        .auto-btn.active {
+            background-color: #5a4536;
+        }
+        
+        /* ========== 对话状态图片（半身像） ========== */
+        .dialogue-state-portrait {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            z-index: 16;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .dialogue-state-portrait img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* ========== 人物立绘（全身像）- 仅第六页使用 ========== */
+        .full-body-portrait {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            z-index: 9;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .full-body-portrait img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* ========== 临时对话框样式 ========== */
+        .temp-dialog {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .temp-dialog.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .temp-dialog .dialog-box {
+            z-index: 51;
+        }
+        
+        .temp-dialog .name-box {
+            z-index: 52;
+        }
+        
+        .temp-dialog .character-name {
+            z-index: 53;
+        }
+        
+        .temp-dialog .dialog-text {
+            z-index: 54;
+        }
+        
+        .temp-dialogue-state-portrait {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            z-index: 55;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .temp-dialogue-state-portrait.show {
+            opacity: 1;
+        }
+        
+        /* ========== 新添加的控制按钮样式 ========== */
+        /* 按钮容器 - 左侧按钮 */
+        .left-controls-container {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+        
+        /* 按钮容器 - 右侧按钮（收集系统按钮，始终显示） */
+        .right-controls-container {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+        
+        /* 设置和音乐按钮 */
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            transition: all 0.3s ease;
+            background: rgba(30, 30, 30, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-btn:hover {
+            background: rgba(80, 80, 80, 0.9);
+            transform: scale(1.1);
+        }
+        
+        /* ========== 新增的收集系统界面样式 ========== */
+        /* 设置面板 */
+        .settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 450px;
+            background-color: rgba(15, 15, 25, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            z-index: 150;
+            display: none;
+        }
+        
+        .settings-panel h2 {
+            color: #ffffff;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .settings-option {
+            margin-bottom: 25px;
+        }
+        
+        .settings-option label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .slider-container span {
+            margin: 0 12px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: 700;
+            color: #aaa;
+        }
+        
+        input[type="range"] {
+            flex-grow: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #666;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        
+        .close-btn {
+            display: block;
+            margin: 25px auto 0;
+            padding: 12px 40px;
+            background: rgba(60, 60, 60, 0.9);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .close-btn:hover {
+            background: rgba(80, 80, 80, 0.9);
+        }
+        
+        /* 遮罩层 - 用于弹窗背景 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 140;
+            display: none;
+        }
+        
+        /* 收集提示 */
+        .collection-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            display: none;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        /* 物品收集系统主容器 */
+        .collection-system {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            height: 80%;
+            max-height: 600px;
+            background-color: rgba(20, 20, 30, 0.97);
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            z-index: 150;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(120, 100, 80, 0.8);
+        }
+        
+        /* 收集系统标题栏 */
+        .collection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(120, 100, 80, 0.8);
+        }
+        
+        /* 收集系统标题 */
+        .collection-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #d4b89c;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 关闭按钮 */
+        .close-collection-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: rgba(100, 100, 100, 0.8);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .close-collection-btn:hover {
+            background-color: rgba(150, 150, 150, 0.9);
+            transform: scale(1.1);
+        }
+        
+        /* 物品内容区域 */
+        .collection-content {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        /* 物品栏位样式 */
+        .collection-slot {
+            background-color: rgba(40, 40, 50, 0.8);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 10px;
+            min-height: 120px;
+            border: 2px solid rgba(60, 60, 70, 0.8);
+        }
+        
+        .collection-slot:hover {
+            background-color: rgba(60, 60, 70, 0.9);
+            transform: scale(1.05);
+            border-color: rgba(120, 100, 80, 0.8);
+        }
+        
+        .collection-slot.has-item {
+            background-color: rgba(70, 60, 50, 0.9);
+            border-color: rgba(150, 130, 110, 0.8);
+        }
+        
+        /* 物品图标 */
+        .item-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 物品名称 */
+        .item-name {
+            position: absolute;
+            bottom: 5px;
+            color: #e0d0c0;
+            font-size: 14px;
+            text-align: center;
+            width: 100%;
+            word-break: break-word;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 2px 0;
+            border-radius: 0 0 6px 6px;
+        }
+        
+        /* 物品查看界面主容器 */
+        .item-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 160;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 物品查看图片 */
+        .item-view-image {
+            max-width: 90vw;
+            max-height: 70vh;
+            object-fit: contain;
+            margin-bottom: 30px;
+            border: 3px solid rgba(120, 100, 80, 0.8);
+            border-radius: 5px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+        }
+        
+        /* 物品查看关闭按钮 */
+        .item-view-close {
+            padding: 12px 40px;
+            background-color: rgba(100, 100, 100, 0.8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .item-view-close:hover {
+            background-color: rgba(130, 130, 130, 0.9);
+        }
+        
+        /* 信息收集系统主容器 */
+        .info-system {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            height: 80%;
+            max-height: 600px;
+            background-color: rgba(30, 25, 20, 0.97);
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            z-index: 150;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(120, 100, 80, 0.8);
+        }
+        
+        /* 信息内容区域 */
+        .info-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+        
+        /* 信息笔记样式 */
+        .info-note {
+            background-color: rgba(50, 45, 40, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #8a6d5b;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 信息笔记标题 */
+        .info-note-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #d4b89c;
+        }
+        
+        /* 信息笔记内容 */
+        .info-note-content {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #e0d0c0;
+        }
+        
+        /* 滚动条样式 */
+        .collection-content::-webkit-scrollbar,
+        .info-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .collection-content::-webkit-scrollbar-track,
+        .info-content::-webkit-scrollbar-track {
+            background: rgba(40, 40, 50, 0.5);
+            border-radius: 4px;
+        }
+        
+        .collection-content::-webkit-scrollbar-thumb,
+        .info-content::-webkit-scrollbar-thumb {
+            background: rgba(120, 100, 80, 0.8);
+            border-radius: 4px;
+        }
+        
+        .collection-content::-webkit-scrollbar-thumb:hover,
+        .info-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(150, 130, 110, 0.9);
+        }
+        
+        /* ========== 动画定义 ========== */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+        
+        @keyframes flyIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.8);
+            }
+            70% {
+                opacity: 0.8;
+                transform: translateY(20px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        /* ========== 缩放调整 ========== */
+        .scale-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="scale-container">
+        <!-- 第五页 - 案情详细介绍 -->
+        <div class="game-container case-detail-container" id="case-detail-page">
+            <!-- 背景图 -->
+            <img class="bg-image" id="case-detail-bg" src="images/案情介绍/bg.png" alt="案情介绍背景">
+            
+            <!-- 案件照片 -->
+            <img class="case-image" id="case-photo" src="images/案情介绍/照片页面.png" alt="案件照片">
+            
+            <!-- 报纸飞入效果 -->
+            <img class="newspaper-flyin" id="newspaper-flyin" src="images/报纸界面/报纸界面_bg.png" alt="报纸">
+            
+            <!-- 报纸2飞入效果 -->
+            <img class="newspaper-flyin" id="newspaper-flyin-2" src="images/报纸界面/报纸界面_bg_2.png" alt="报纸2">
+            
+            <!-- 可点击区域（四个红圈位置） -->
+            <div class="clickable-area" id="clickable-1" style="left: 467px; top: 375px; width: 100px; height: 86px;"></div>
+            <div class="clickable-area" id="clickable-2" style="left: 747px; top: 365px; width: 100px; height: 93px;"></div>
+            <div class="clickable-area" id="clickable-3" style="left: 1179px; top: 296px; width: 67px; height: 62px;"></div>
+            <div class="clickable-area" id="clickable-4" style="left: 1518px; top: 396px; width: 72px; height: 62px;"></div>
+            
+            <!-- 红圈标记（点击后显示） -->
+            <div class="red-circle" id="red-circle-1" style="left: 467px; top: 375px; width: 100px; height: 86px;"></div>
+            <div class="red-circle" id="red-circle-2" style="left: 747px; top: 365px; width: 100px; height: 93px;"></div>
+            <div class="red-circle" id="red-circle-3" style="left: 1179px; top: 296px; width: 67px; height: 62px;"></div>
+            <div class="red-circle" id="red-circle-4" style="left: 1518px; top: 396px; width: 72px; height: 62px;"></div>
+            
+            <!-- 拼图区域 -->
+            <div class="puzzle-container" id="puzzle-container">
+                <!-- 拼图目标位置 -->
+                <div class="puzzle-target" id="target-1" style="left: 252px; top: 155px; width: 343px; height: 485px;"></div>
+                <div class="puzzle-target" id="target-2" style="left: 610px; top: 156px; width: 343px; height: 485px;"></div>
+                <div class="puzzle-target" id="target-3" style="left: 969px; top: 156px; width: 343px; height: 485px;"></div>
+                <div class="puzzle-target" id="target-4" style="left: 1327px; top: 156px; width: 343px; height: 485px;"></div>
+                
+                <img class="puzzle-piece" id="puzzle-1" src="images/案情介绍/暗巷拼图1.png" alt="拼图1">
+                <img class="puzzle-piece" id="puzzle-2" src="images/案情介绍/暗巷拼图2.png" alt="拼图2">
+                <img class="puzzle-piece" id="puzzle-3" src="images/案情介绍/暗巷拼图3.png" alt="拼图3">
+                <img class="puzzle-piece" id="puzzle-4" src="images/案情介绍/暗巷拼图4.png" alt="拼图4">
+            </div>
+            
+            <!-- 完整暗巷图片 -->
+            <img class="dark-alley-image" id="dark-alley-image" src="images/案情介绍/暗巷图片.png" alt="完整暗巷图片">
+            
+            <!-- 嫌疑人画像 -->
+            <img class="suspect-image" id="suspect-image" src="images/案情介绍/嫌疑人画像.png" alt="嫌疑人画像">
+            
+            <!-- 高光特效 -->
+            <div class="highlight-effect" id="highlight-effect" style="left: 195px; top: 170px; width: 370px; height: 459px; opacity: 0; display: none;"></div>
+
+            <!-- 匿名信 -->
+            <img class="anonymous-letter" id="anonymous-letter" src="images/案情介绍/匿名信.png" alt="匿名信">
+            
+            <!-- 解谜GIF - 使用data-src延迟加载 -->
+            <img class="decrypt-gif" id="decrypt-gif" data-src="images/案情介绍/解谜.gif" alt="解谜过程">
+            
+            <!-- 输入框 -->
+            <div class="input-container" id="input-container">
+                <div class="word-input-wrapper">
+                    <input type="text" class="word-input" id="word-input" maxlength="10">
+                </div>
+            </div>
+            
+            <!-- 提交按钮 -->
+            <button class="submit-btn" id="submit-btn">提交</button>
+            
+            <!-- 对话状态图片（叶警官半身像） -->
+            <div class="dialogue-state-portrait" id="dialogue-state-portrait">
+                <img id="dialogue-state-image" src="images/人物立绘/叶半身/叶_普_半身_普.png" alt="叶警官对话状态">
+            </div>
+            
+            <!-- 对话框系统 -->
+            <div class="dialog-box" id="case-detail-dialog-box">
+                <img class="dialog-bg" src="images/对话框.png" alt="对话框背景">
+            </div>
+            
+            <!-- 姓名框 -->
+            <div class="name-box" id="case-detail-name-box">
+                <img class="name-bg" src="images/姓名框.png" alt="姓名框背景">
+            </div>
+            
+            <!-- 角色姓名 -->
+            <div class="character-name" id="case-detail-character-name">叶警官</div>
+            
+            <!-- 对话内容 -->
+            <div class="dialog-text" id="case-detail-dialog-text"></div>
+            
+            <!-- 继续按钮 -->
+            <button class="continue-btn" id="case-detail-continue-btn">继续</button>
+            
+            <!-- 自动播放按钮 -->
+            <button class="auto-btn" id="case-detail-auto-btn">自动</button>
+            
+            <!-- 临时对话框（用于错误提示） -->
+            <div class="temp-dialog" id="temp-dialog">
+                <div class="dialog-box">
+                    <img class="dialog-bg" src="images/对话框.png" alt="对话框背景">
+                </div>
+                <div class="name-box">
+                    <img class="name-bg" src="images/姓名框.png" alt="姓名框背景">
+                </div>
+                <div class="character-name" id="temp-character-name">叶警官</div>
+                <div class="dialog-text" id="temp-dialog-text"></div>
+                <div class="temp-dialogue-state-portrait" id="temp-dialogue-state-portrait">
+                    <img id="temp-dialogue-state-image" src="" alt="叶警官临时对话状态">
+                </div>
+            </div>
+            
+            <!-- 左侧控制按钮 -->
+            <div class="left-controls-container">
+                <button class="control-btn" id="case-detail-settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="control-btn" id="case-detail-music-control">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+            
+            <!-- 右侧控制按钮 -->
+            <div class="right-controls-container" id="case-detail-right-controls">
+                <button class="control-btn" id="case-detail-info-collection-btn">
+                    <i class="fas fa-book"></i>
+                </button>
+                <button class="control-btn" id="case-detail-item-collection-btn">
+                    <i class="fas fa-box"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 第六页 - 圣诞特辑 -->
+        <div class="game-container christmas-container" id="christmas-page">
+            <!-- 背景图 -->
+            <img class="bg-image" id="christmas-bg" src="images/圣诞特辑/bg.png" alt="圣诞背景">
+            
+            <!-- 人物立绘（全身像）- 仅第六页使用 -->
+            <div class="full-body-portrait" id="full-body-portrait">
+                <img id="full-body-image" src="images/人物立绘/叶圣诞/叶_圣诞_普_笑.png" alt="叶警官圣诞立绘">
+            </div>
+            
+            <!-- 圣诞袜 - 修改为全屏显示 -->
+            <img class="christmas-sock" id="christmas-sock" src="images/圣诞特辑/圣诞袜子.png" alt="圣诞袜">
+            
+            <!-- 压暗层 -->
+            <div class="dim-overlay" id="dim-overlay"></div>
+            
+            <!-- 对话框系统 -->
+            <div class="dialog-box" id="christmas-dialog-box">
+                <img class="dialog-bg" src="images/对话框.png" alt="对话框背景">
+            </div>
+            
+            <!-- 姓名框 -->
+            <div class="name-box" id="christmas-name-box">
+                <img class="name-bg" src="images/姓名框.png" alt="姓名框背景">
+            </div>
+            
+            <!-- 角色姓名 -->
+            <div class="character-name" id="christmas-character-name">叶警官</div>
+            
+            <!-- 对话内容 -->
+            <div class="dialog-text" id="christmas-dialog-text"></div>
+            
+            <!-- 继续按钮 -->
+            <button class="continue-btn" id="christmas-continue-btn">继续</button>
+            
+            <!-- 自动播放按钮 -->
+            <button class="auto-btn" id="christmas-auto-btn">自动</button>
+            
+            <!-- 圣诞快乐弹窗 -->
+            <div class="christmas-popup" id="christmas-popup">
+                <h2>圣诞快乐！</h2>
+                <p>后续游戏正在<span class="highlight">爆肝制作中</span></p>
+                <p class="highlight">敬请期待</p>
+            </div>
+            
+            <!-- 左侧控制按钮 -->
+            <div class="left-controls-container">
+                <button class="control-btn" id="christmas-settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="control-btn" id="christmas-music-control">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+            
+            <!-- 右侧控制按钮 -->
+            <div class="right-controls-container" id="christmas-right-controls">
+                <button class="control-btn" id="christmas-info-collection-btn">
+                    <i class="fas fa-book"></i>
+                </button>
+                <button class="control-btn" id="christmas-item-collection-btn">
+                    <i class="fas fa-box"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 错误提示符号容器 -->
+        <div id="error-container"></div>
+    </div>
+    
+    <!-- ========== 新增的弹窗和收集系统界面 ========== -->
+    
+    <!-- 设置面板遮罩层 -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+    
+    <!-- 设置面板 -->
+    <div class="settings-panel" id="settings-panel">
+        <h2>游戏设置</h2>
+        
+        <div class="settings-option">
+            <label for="volume">背景音乐音量</label>
+            <div class="slider-container">
+                <span id="volume-value">70</span>
+                <input type="range" id="volume" min="0" max="100" value="70">
+                <span>100</span>
+            </div>
+        </div>
+        
+        <div class="settings-option">
+            <label for="effects">音效音量</label>
+            <div class="slider-container">
+                <span id="effects-value">80</span>
+                <input type="range" id="effects" min="0" max="100" value="80">
+                <span>100</span>
+            </div>
+        </div>
+        
+        <button class="close-btn" id="close-btn">保存设置</button>
+    </div>
+    
+    <!-- 收集提示 -->
+    <div class="collection-hint" id="collection-hint"></div>
+    
+    <!-- 物品收集系统界面 -->
+    <div class="collection-system" id="collection-system">
+        <div class="collection-header">
+            <h2 class="collection-title">我的背包</h2>
+            <button class="close-collection-btn" id="close-collection-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="collection-content" id="collection-content">
+            <!-- 物品栏位将通过JavaScript动态添加 -->
+        </div>
+    </div>
+    
+    <!-- 物品查看界面 -->
+    <div class="item-view" id="item-view">
+        <img class="item-view-image" id="item-view-image" src="" alt="物品图片">
+        <button class="item-view-close" id="item-view-close">关闭</button>
+    </div>
+    
+    <!-- 信息收集系统界面 -->
+    <div class="info-system" id="info-system">
+        <div class="collection-header">
+            <h2 class="collection-title">我的笔记本</h2>
+            <button class="close-collection-btn" id="close-info-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="info-content" id="info-content">
+            <!-- 信息笔记将通过JavaScript动态添加 -->
+        </div>
+    </div>
+    
+    <!-- 背景音乐 -->
+    <audio id="bg-music" loop>
+        <source src="audio/案情介绍/bgm_case_intro.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 圣诞音乐 -->
+    <audio id="christmas-music" loop>
+        <source src="audio/圣诞特辑/christmas.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 打字机音效 -->
+    <audio id="keyboard-sound">
+        <source src="audio/keyboard-sound.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 点击音效 -->
+    <audio id="click-sound">
+        <source src="audio/click.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 成功音效 -->
+    <audio id="success-sound">
+        <source src="audio/success.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 错误音效 -->
+    <audio id="error-sound">
+        <source src="audio/error.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ========== 第五页对话数据 ==========
+        const caseDetailDialogues = [
+            { 
+                speaker: "叶警官", 
+                text: "截至目前，相同犯案手法的恶性杀人事件已经发生了四件。四名受害者表面上年龄不同、身份各异，可通过我们的深入调查，发现了一个惊人的巧合！",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_普.png",
+                showImage: "case-photo",
+                phase: 0,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "我", 
+                text: "他们都是那个黄金贼团的成员，对吗？",
+                portrait: null,
+                showImage: "case-photo",
+                phase: 0,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "这么敏锐？你是怎么知道的？！",
+                portrait: "images/人物立绘/叶半身/叶_思考_半身_惊讶.png",
+                showImage: "case-photo",
+                phase: 0,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "我", 
+                text: "（从背包里拿出水蜜桃日报）拜托，警官，你平常是完全不看水蜜桃日报的吗？",
+                portrait: null,
+                showImage: "case-photo",
+                showNewspaper: true,
+                phase: 0,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "（接过报纸扫了一眼）该死的八卦报纸，采访时明明答应过我不会披露太多案件细节的！",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_白眼.png",
+                showImage: "case-photo",
+                phase: 0,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "不过，看起来你在破案这方面有点天赋嘛！怎么样，要不要试试看再从这几张照片里发现些什么线索？",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_笑.png",
+                showImage: "case-photo",
+                phase: 0,
+                changeButtonText: "仔细查看照片",
+                hideAutoBtn: true
+            },
+            
+            // 红圈标记完成后的对话
+            { 
+                speaker: "叶警官", 
+                text: "非常好！四位死者的脖子上都出现了两个小洞，像是尖牙刺入的痕迹。",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_普.png",
+                showImage: "case-photo",
+                phase: 4,
+                keepRedCircles: true,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "死者面部表情都非常狰狞，像是在死前目睹到什么极其恐怖的场景。",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_普.png",
+                showImage: "case-photo",
+                phase: 4,
+                keepRedCircles: true,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "尸体状态都呈现出一种诡异的惨白，死因皆为失血过多，所以现在很多人认为是吸血鬼作案。",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_普.png",
+                showImage: "case-photo",
+                phase: 4,
+                keepRedCircles: true,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "下面这几张照片是案发现场的情况，怎么样，能发现些什么吗？",
+                portrait: "images/人物立绘/叶半身/叶_思考_半身_坏坏.png",
+                showPuzzle: true,
+                phase: 4,
+                hideRedCircles: true,
+                changeButtonText: "仔细查看照片",
+                hideAutoBtn: true
+            },
+            
+            // 拼图完成后的对话
+            { 
+                speaker: "叶警官", 
+                text: "完全正确！正如你所发现的，案发现场都是深夜的暗巷，死者均为独行路人，死亡时间集中在凌晨1点至3点之间。",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_大笑.png",
+                showImage: "dark-alley-image",
+                phase: 4,
+                keepPortrait: true,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "因为是深夜，即使有目击者，看到的只是一些模糊不清的人影。这是几张我根据目击证人口述所画的几张嫌疑人画像。",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_普.png",
+                showImage: "suspect-image",
+                phase: 4,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "值得注意的是这一张，根据目击者口述，我们大致还原了案发现场曾出现过的一丝反常光亮，类似金属反光，疑似是凶手个人物品的残留痕迹。",
+                portrait: "images/人物立绘/叶半身/叶_思考_半身_普.png",
+                showImage: "suspect-image",
+                phase: 4,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "对了，还有这个，这是一封前几天寄到警局来的匿名信。如你所见，信里面只写了一个单词——dopal（多巴胺）。大家都觉得这可能根本算不上什么线索，可我却总觉得它好像与我们的案件有什么关联。",
+                portrait: "images/人物立绘/叶半身/叶_思考_半身_普.png",
+                showImage: "anonymous-letter",
+                phase: 4,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "我", 
+                text: "啊！！！！这封信的意思是（冒号后输入答案）：",
+                portrait: null,
+                showInput: true,
+                phase: 4,
+                showImage: "anonymous-letter",
+                hideAutoBtn: false
+            },
+            
+            // 输入正确后的对话
+            { 
+                speaker: "叶警官", 
+                text: "为什么是white？",
+                portrait: "images/人物立绘/叶半身/叶_思考_半身_普.png",
+                showImage: "anonymous-letter",
+                phase: 4,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "我", 
+                text: "水蜜桃日报！今天的脑力锻炼题目就是凯撒密码！如果密钥设置为7，把26个字母排列，下一列的26个字母往前移动7位，就是答案！",
+                portrait: null,
+                showImage: "decrypt-gif",
+                phase: 4,
+                hideAutoBtn: false
+            },
+            // 新增叶警官对话
+            { 
+                speaker: "叶警官", 
+                text: "天呐，你简直是个天才！我怎么没想到这是密码？【white？白？这又是什么意思？】",
+                portrait: "images/人物立绘/叶半身/叶_普_半身_惊讶.png",
+                showImage: "anonymous-letter",
+                phase: 4,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "我", 
+                text: "白吗？怎么感觉这么熟悉。等等，我想起来了！是女王！是白女王！怪不得刚才看画像时就觉得其中一位嫌疑人很眼熟，原来是在刚才的水蜜桃日报上看过！",
+                portrait: null,
+                showNewspaper2: true,
+                phase: 4,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "白女王是谁？一个很有名的人吗？",
+                portrait: "images/人物立绘/叶半身/叶_思考_半身_普.png",
+                phase: 4,
+                keepNewspaper2: true,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "我", 
+                text: "（把报纸给叶）喏，长官，如你所见，这位女士才刚被水蜜桃日报报导过，至于板块吗，正巧在你的采访旁边。",
+                portrait: null,
+                phase: 4,
+                keepNewspaper2: true,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "白女王吗？看来我有必要再去好好调查一下她……（叶警官一边思索，一边走出了办公室……）",
+                portrait: "images/人物立绘/叶半身/叶_思考_半身_普.png",
+                phase: 4,
+                keepNewspaper2: true,
+                hideAutoBtn: true,
+                changeButtonText: "继续"
+            }
+        ];
+        
+        // ========== 第六页对话数据 ==========
+        const christmasDialogues = [
+            { 
+                speaker: "我", 
+                text: "等一下！就这么走掉了吗？我该做点什么……或许可以再继续观察一下，看看有没有什么新的发现。",
+                portrait: null,
+                phase: 0,
+                noPortrait: true,
+                noImage: true,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "我", 
+                text: "（环顾四周）这位警官外表虽然看起来有点凌乱，可办公室却意外地特别整洁。",
+                portrait: null,
+                phase: 0,
+                noPortrait: true,
+                noImage: true,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "我", 
+                text: "嘿，长官！怎么又突然出现了，还戴着圣诞帽？",
+                portrait: "images/人物立绘/叶圣诞/叶_圣诞_普_笑.png",
+                showFullBody: "images/人物立绘/叶圣诞/叶_圣诞_普_笑.png",
+                phase: 0,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "怎么回事，你难道忘了今天是什么日子吗？",
+                portrait: "images/人物立绘/叶圣诞/叶_圣诞_普_笑.png",
+                showFullBody: "images/人物立绘/叶圣诞/叶_圣诞_普_笑.png",
+                phase: 0,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "刚才你的解密帮了我大忙，喏，这是我专门为你准备的回礼。",
+                portrait: "images/人物立绘/叶圣诞/叶_圣诞_张手_大笑.png",
+                showFullBody: "images/人物立绘/叶圣诞/叶_圣诞_张手_大笑.png",
+                showSock: true,
+                phase: 0,
+                changeButtonText: "收下礼物",
+                hideAutoBtn: true
+            },
+            { 
+                speaker: "我", 
+                text: "谢谢……",
+                portrait: "images/人物立绘/叶圣诞/叶_圣诞_张手_大笑.png",
+                showFullBody: "images/人物立绘/叶圣诞/叶_圣诞_张手_大笑.png",
+                phase: 0,
+                hideAutoBtn: false
+            },
+            { 
+                speaker: "叶警官", 
+                text: "怎么样！是不是非常完美！记得一定要把它挂在床头哦。总而言之，先度过一个愉快的圣诞假期吧，祝你圣诞快乐！",
+                portrait: "images/人物立绘/叶圣诞/叶_圣诞_张手_大笑.png",
+                showFullBody: "images/人物立绘/叶圣诞/叶_圣诞_张手_大笑.png",
+                phase: 0,
+                hideAutoBtn: false
+            }
+        ];
+        
+        // ========== 全局变量 ==========
+        let gameState = {
+            // 对话状态
+            currentDialogueIndex: 0,
+            isTyping: false,
+            typewriterInterval: null,
+            currentText: '',
+            charIndex: 0,
+            typewriterSpeed: 40,
+            lastSoundTime: 0,
+            soundCooldown: 80,
+            
+            // 自动播放状态
+            isAutoPlay: false,
+            autoPlayTimeout: null,
+            autoPlayDelay: 1500,
+            
+            // 交互状态
+            currentPhase: 0,
+            markedAreas: [false, false, false, false],
+            puzzlePositions: [
+                { left: 252, top: 155, correct: 1 },
+                { left: 610, top: 156, correct: 2 },
+                { left: 969, top: 156, correct: 3 },
+                { left: 1327, top: 156, correct: 4 }
+            ],
+            currentPuzzlePositions: [],
+            puzzleOrder: null,
+            isDragging: false,
+            draggingPiece: null,
+            dragOffsetX: 0,
+            dragOffsetY: 0,
+            draggingIndex: null,
+            draggedPieceOriginalIndex: null,
+            
+            // 第六页状态
+            hasReceivedSock: false,
+            
+            // 音乐状态
+            isMusicPlaying: true,
+            currentVolume: 0.7,
+            currentPage: 'case-detail',
+            musicStarted: false,
+            
+            // 临时对话框状态
+            isShowingTemporaryDialog: false,
+            temporaryDialogTimeout: null,
+            
+            // 输入相关状态
+            isInputActive: false,
+            inputTextLength: 0,
+            inputVerified: false,
+            
+            // 报纸状态
+            isNewspaper1Showing: false,
+            isNewspaper2Showing: false,
+            
+            // 收集系统状态
+            collectedItems: [],
+            collectedInfo: [],
+            hasShownCollectionHint: false,
+            
+            // 物品收集标志
+            hasCollectedAnonymousLetter: false,
+            hasCollectedChristmasSock: false
+        };
+        
+        // ========== DOM元素 ==========
+        let caseDetailPage, christmasPage;
+        let caseDetailContinueBtn, caseDetailAutoBtn, caseDetailCharacterName, caseDetailDialogText;
+        let dialogueStateImage, casePhoto, newspaperFlyin, newspaperFlyin2;
+        let clickableAreas = [], redCircles = [];
+        let submitBtn, puzzleContainer, puzzlePieces = [], puzzleTargets = [];
+        let darkAlleyImage, suspectImage, anonymousLetter, decryptGif, highlightEffect;
+        let inputContainer, wordInput, wordInputWrapper;
+        
+        let christmasContinueBtn, christmasAutoBtn, christmasCharacterName, christmasDialogText;
+        let fullBodyImage, christmasSock, dimOverlay, christmasPopup;
+        let tempDialog, tempCharacterName, tempDialogText, tempDialogueStatePortrait, tempDialogueStateImage;
+        
+        // 控制按钮元素
+        let caseDetailSettingsBtn, caseDetailMusicControl, caseDetailRightControls;
+        let caseDetailInfoCollectionBtn, caseDetailItemCollectionBtn;
+        let christmasSettingsBtn, christmasMusicControl, christmasRightControls;
+        let christmasInfoCollectionBtn, christmasItemCollectionBtn;
+        
+        // 收集系统元素
+        let modalOverlay, settingsPanel, volumeSlider, effectsSlider, volumeValue, effectsValue, closeBtn;
+        let collectionHint, collectionSystem, closeCollectionBtn, collectionContent;
+        let itemView, itemViewImage, itemViewClose;
+        let infoSystem, closeInfoBtn, infoContent;
+        
+        // 音乐元素
+        let bgMusic, christmasMusic, keyboardSound, clickSound, successSound, errorSound;
+        
+        // ========== 初始化函数 ==========
+        function initGame() {
+            console.log("第五页游戏开始初始化");
+            
+            // 获取DOM元素
+            getDOMElements();
+            
+            // 调整缩放
+            adjustScale();
+            
+            // 加载收集状态
+            loadCollectionState();
+            
+            // 初始化收集系统
+            initializeCollectionSystem();
+            
+            // 设置事件监听器
+            setupEventListeners();
+            
+            // 设置音乐
+            setupMusic();
+            
+            // 初始化拼图位置
+            initPuzzle();
+            
+            // 确保UI元素正确显示
+            ensureUIInitialState();
+            
+            // 开始第一句对话
+            setTimeout(() => {
+                showDialogue();
+            }, 500);
+            
+            // 窗口大小变化时重新调整缩放
+            window.addEventListener('resize', adjustScale);
+            
+            console.log("第五页游戏初始化完成");
+        }
+        
+        function getDOMElements() {
+            // 页面元素
+            caseDetailPage = document.getElementById('case-detail-page');
+            christmasPage = document.getElementById('christmas-page');
+            
+            // 第五页元素
+            caseDetailContinueBtn = document.getElementById('case-detail-continue-btn');
+            caseDetailAutoBtn = document.getElementById('case-detail-auto-btn');
+            caseDetailCharacterName = document.getElementById('case-detail-character-name');
+            caseDetailDialogText = document.getElementById('case-detail-dialog-text');
+            dialogueStateImage = document.getElementById('dialogue-state-image');
+            casePhoto = document.getElementById('case-photo');
+            newspaperFlyin = document.getElementById('newspaper-flyin');
+            newspaperFlyin2 = document.getElementById('newspaper-flyin-2');
+            
+            // 可点击区域和红圈
+            clickableAreas = [
+                document.getElementById('clickable-1'),
+                document.getElementById('clickable-2'),
+                document.getElementById('clickable-3'),
+                document.getElementById('clickable-4')
+            ];
+            
+            redCircles = [
+                document.getElementById('red-circle-1'),
+                document.getElementById('red-circle-2'),
+                document.getElementById('red-circle-3'),
+                document.getElementById('red-circle-4')
+            ];
+            
+            submitBtn = document.getElementById('submit-btn');
+            puzzleContainer = document.getElementById('puzzle-container');
+            
+            // 拼图元素
+            puzzlePieces = [
+                document.getElementById('puzzle-1'),
+                document.getElementById('puzzle-2'),
+                document.getElementById('puzzle-3'),
+                document.getElementById('puzzle-4')
+            ];
+            
+            puzzleTargets = [
+                document.getElementById('target-1'),
+                document.getElementById('target-2'),
+                document.getElementById('target-3'),
+                document.getElementById('target-4')
+            ];
+            
+            darkAlleyImage = document.getElementById('dark-alley-image');
+            suspectImage = document.getElementById('suspect-image');
+            anonymousLetter = document.getElementById('anonymous-letter');
+            decryptGif = document.getElementById('decrypt-gif');
+            highlightEffect = document.getElementById('highlight-effect');
+            inputContainer = document.getElementById('input-container');
+            wordInput = document.getElementById('word-input');
+            wordInputWrapper = document.querySelector('.word-input-wrapper');
+            
+            // 临时对话框元素
+            tempDialog = document.getElementById('temp-dialog');
+            tempCharacterName = document.getElementById('temp-character-name');
+            tempDialogText = document.getElementById('temp-dialog-text');
+            tempDialogueStatePortrait = document.getElementById('temp-dialogue-state-portrait');
+            tempDialogueStateImage = document.getElementById('temp-dialogue-state-image');
+            
+            // 第六页元素
+            christmasContinueBtn = document.getElementById('christmas-continue-btn');
+            christmasAutoBtn = document.getElementById('christmas-auto-btn');
+            christmasCharacterName = document.getElementById('christmas-character-name');
+            christmasDialogText = document.getElementById('christmas-dialog-text');
+            fullBodyImage = document.getElementById('full-body-image');
+            christmasSock = document.getElementById('christmas-sock');
+            dimOverlay = document.getElementById('dim-overlay');
+            christmasPopup = document.getElementById('christmas-popup');
+            
+            // 控制按钮元素
+            caseDetailSettingsBtn = document.getElementById('case-detail-settings-btn');
+            caseDetailMusicControl = document.getElementById('case-detail-music-control');
+            caseDetailRightControls = document.getElementById('case-detail-right-controls');
+            caseDetailInfoCollectionBtn = document.getElementById('case-detail-info-collection-btn');
+            caseDetailItemCollectionBtn = document.getElementById('case-detail-item-collection-btn');
+            
+            christmasSettingsBtn = document.getElementById('christmas-settings-btn');
+            christmasMusicControl = document.getElementById('christmas-music-control');
+            christmasRightControls = document.getElementById('christmas-right-controls');
+            christmasInfoCollectionBtn = document.getElementById('christmas-info-collection-btn');
+            christmasItemCollectionBtn = document.getElementById('christmas-item-collection-btn');
+            
+            // 收集系统元素
+            modalOverlay = document.getElementById('modal-overlay');
+            settingsPanel = document.getElementById('settings-panel');
+            volumeSlider = document.getElementById('volume');
+            effectsSlider = document.getElementById('effects');
+            volumeValue = document.getElementById('volume-value');
+            effectsValue = document.getElementById('effects-value');
+            closeBtn = document.getElementById('close-btn');
+            
+            collectionHint = document.getElementById('collection-hint');
+            collectionSystem = document.getElementById('collection-system');
+            closeCollectionBtn = document.getElementById('close-collection-btn');
+            collectionContent = document.getElementById('collection-content');
+            
+            itemView = document.getElementById('item-view');
+            itemViewImage = document.getElementById('item-view-image');
+            itemViewClose = document.getElementById('item-view-close');
+            
+            infoSystem = document.getElementById('info-system');
+            closeInfoBtn = document.getElementById('close-info-btn');
+            infoContent = document.getElementById('info-content');
+            
+            // 音乐元素
+            bgMusic = document.getElementById('bg-music');
+            christmasMusic = document.getElementById('christmas-music');
+            keyboardSound = document.getElementById('keyboard-sound');
+            clickSound = document.getElementById('click-sound');
+            successSound = document.getElementById('success-sound');
+            errorSound = document.getElementById('error-sound');
+        }
+        
+        // ========== 收集系统功能 ==========
+        
+        // 加载收集状态
+        function loadCollectionState() {
+            console.log("正在加载收集状态...");
+            
+            // 从localStorage加载收集状态
+            const savedItems = localStorage.getItem('vampire_game_collected_items');
+            const savedInfo = localStorage.getItem('vampire_game_collected_info');
+            
+            if (savedItems) {
+                try {
+                    gameState.collectedItems = JSON.parse(savedItems);
+                    console.log("成功加载物品收集状态:", gameState.collectedItems.length + "个物品");
+                    
+                    // 检查是否已收集匿名信
+                    gameState.hasCollectedAnonymousLetter = gameState.collectedItems.some(item => 
+                        item && item.id === 'anonymous_letter');
+                        
+                    // 检查是否已收集圣诞袜
+                    gameState.hasCollectedChristmasSock = gameState.collectedItems.some(item => 
+                        item && item.id === 'christmas_sock');
+                        
+                } catch (e) {
+                    console.error("解析物品收集状态失败:", e);
+                    gameState.collectedItems = [];
+                }
+            } else {
+                console.log("localStorage中没有找到物品收集状态");
+                gameState.collectedItems = [];
+            }
+            
+            if (savedInfo) {
+                try {
+                    gameState.collectedInfo = JSON.parse(savedInfo);
+                    console.log("成功加载信息收集状态:", gameState.collectedInfo.length + "条信息");
+                } catch (e) {
+                    console.error("解析信息收集状态失败:", e);
+                    gameState.collectedInfo = [];
+                }
+            } else {
+                console.log("localStorage中没有找到信息收集状态");
+                gameState.collectedInfo = [];
+            }
+        }
+        
+        // 初始化收集系统
+        function initializeCollectionSystem() {
+            // 清空收集内容
+            collectionContent.innerHTML = '';
+            infoContent.innerHTML = '';
+            
+            // 创建12个物品栏位
+            for (let i = 0; i < 12; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'collection-slot';
+                slot.dataset.slotIndex = i;
+                
+                if (gameState.collectedItems[i]) {
+                    slot.classList.add('has-item');
+                    
+                    const item = gameState.collectedItems[i];
+                    const itemIcon = document.createElement('img');
+                    itemIcon.className = 'item-icon';
+                    itemIcon.src = item.image;
+                    itemIcon.alt = item.name;
+                    
+                    const itemName = document.createElement('div');
+                    itemName.className = 'item-name';
+                    itemName.textContent = item.name;
+                    
+                    slot.appendChild(itemIcon);
+                    slot.appendChild(itemName);
+                    
+                    // 添加点击事件查看物品
+                    slot.addEventListener('click', function() {
+                        showItemView(item);
+                    });
+                } else {
+                    const emptyText = document.createElement('div');
+                    emptyText.textContent = '空';
+                    emptyText.style.color = '#888';
+                    slot.appendChild(emptyText);
+                }
+                
+                collectionContent.appendChild(slot);
+            }
+            
+            // 更新信息收集系统
+            updateInfoSystem();
+        }
+        
+        // 更新信息收集系统显示
+        function updateInfoSystem() {
+            infoContent.innerHTML = '';
+            
+            if (gameState.collectedInfo.length === 0) {
+                const emptyNote = document.createElement('div');
+                emptyNote.className = 'info-note';
+                emptyNote.innerHTML = '<div class="info-note-content">暂无收集到的信息</div>';
+                infoContent.appendChild(emptyNote);
+                return;
+            }
+            
+            // 添加所有收集的信息
+            gameState.collectedInfo.forEach((info, index) => {
+                const note = document.createElement('div');
+                note.className = 'info-note';
+                
+                const title = document.createElement('div');
+                title.className = 'info-note-title';
+                title.textContent = `笔记 ${index + 1}`;
+                
+                const content = document.createElement('div');
+                content.className = 'info-note-content';
+                content.textContent = info.content;
+                
+                note.appendChild(title);
+                note.appendChild(content);
+                infoContent.appendChild(note);
+            });
+        }
+        
+        // 保存收集状态
+        function saveCollectionState() {
+            localStorage.setItem('vampire_game_collected_items', JSON.stringify(gameState.collectedItems));
+            localStorage.setItem('vampire_game_collected_info', JSON.stringify(gameState.collectedInfo));
+            console.log("收集状态已保存到localStorage");
+        }
+        
+        // 添加匿名信到收集系统
+        function addAnonymousLetterToCollection() {
+            if (gameState.hasCollectedAnonymousLetter) {
+                console.log("匿名信已经收集过了");
+                return;
+            }
+            
+            // 找到第一个空栏位
+            let emptyIndex = -1;
+            for (let i = 0; i < 12; i++) {
+                if (!gameState.collectedItems[i]) {
+                    emptyIndex = i;
+                    break;
+                }
+            }
+            
+            if (emptyIndex !== -1) {
+                gameState.collectedItems[emptyIndex] = {
+                    id: 'anonymous_letter',
+                    name: '匿名信',
+                    image: 'images/案情介绍/匿名信.png',
+                    description: '一封寄到警局的匿名信，上面写着"dopal"'
+                };
+                
+                // 添加相关信息
+                gameState.collectedInfo.push({
+                    id: 'info_decryption',
+                    content: '匿名信中的"dopal"使用凯撒密码（密钥7）解密后得到"white"，可能与"白女王"有关'
+                });
+                
+                gameState.hasCollectedAnonymousLetter = true;
+                
+                // 保存到localStorage
+                saveCollectionState();
+                
+                // 更新显示（但不打开背包界面）
+                initializeCollectionSystem();
+                
+                // 显示提示（仅提示，不打开背包）
+                showCollectionHint('已收集到新物品：匿名信');
+                
+                console.log("匿名信已添加到收集系统");
+            } else {
+                console.log("背包已满，无法添加匿名信");
+                showCollectionHint("背包已满，无法添加匿名信");
+            }
+        }
+        
+        // 添加圣诞袜到收集系统
+        function addChristmasSockToCollection() {
+            if (gameState.hasCollectedChristmasSock) {
+                console.log("圣诞袜已经收集过了");
+                return;
+            }
+            
+            // 找到第一个空栏位
+            let emptyIndex = -1;
+            for (let i = 0; i < 12; i++) {
+                if (!gameState.collectedItems[i]) {
+                    emptyIndex = i;
+                    break;
+                }
+            }
+            
+            if (emptyIndex !== -1) {
+                gameState.collectedItems[emptyIndex] = {
+                    id: 'christmas_sock',
+                    name: '圣诞袜',
+                    image: 'images/圣诞特辑/圣诞袜子.png',
+                    description: '叶警官送给你的圣诞礼物'
+                };
+                
+                // 添加相关信息
+                gameState.collectedInfo.push({
+                    id: 'info_christmas_sock',
+                    content: '叶警官在圣诞节送给你的圣诞袜，记得挂在床头哦！'
+                });
+                
+                gameState.hasCollectedChristmasSock = true;
+                
+                // 保存到localStorage
+                saveCollectionState();
+                
+                // 更新显示（但不打开背包界面）
+                initializeCollectionSystem();
+                
+                 // 显示提示（仅提示，不打开背包）
+                showCollectionHint('已收到圣诞袜！');
+                
+                console.log("圣诞袜已添加到收集系统");
+            } else {
+                console.log("背包已满，无法添加圣诞袜");
+                showCollectionHint("背包已满，无法添加圣诞袜");
+            }
+        }
+        
+        // 显示物品查看界面
+        function showItemView(item) {
+            itemViewImage.src = item.image;
+            itemView.style.display = 'flex';
+            modalOverlay.style.display = 'block';
+        }
+        
+        // 显示收集提示
+        function showCollectionHint(message) {
+            collectionHint.textContent = message;
+            collectionHint.style.display = 'block';
+            
+            setTimeout(() => {
+                collectionHint.style.display = 'none';
+            }, 3000);
+        }
+        
+        // ========== 设置面板功能 ==========
+        
+        // 显示设置面板
+        function showSettingsPanel() {
+            playSound(clickSound);
+            modalOverlay.style.display = 'block';
+            settingsPanel.style.display = 'block';
+            
+            // 暂停音乐
+            if (gameState.isMusicPlaying) {
+                if (gameState.currentPage === 'case-detail') {
+                    bgMusic.pause();
+                } else if (gameState.currentPage === 'christmas') {
+                    christmasMusic.pause();
+                }
+            }
+        }
+        
+        // 隐藏设置面板
+        function hideSettingsPanel() {
+            playSound(clickSound);
+            modalOverlay.style.display = 'none';
+            settingsPanel.style.display = 'none';
+            
+            // 恢复音乐
+            if (gameState.isMusicPlaying) {
+                if (gameState.currentPage === 'case-detail') {
+                    bgMusic.play().catch(e => {
+                        console.log("恢复音乐失败:", e);
+                    });
+                } else if (gameState.currentPage === 'christmas') {
+                    christmasMusic.play().catch(e => {
+                        console.log("恢复圣诞音乐失败:", e);
+                    });
+                }
+            }
+        }
+        
+        // 更新音量
+        function updateVolume() {
+            const volume = this.value / 100;
+            gameState.currentVolume = volume;
+            
+            // 更新所有音频元素的音量
+            bgMusic.volume = volume;
+            christmasMusic.volume = volume;
+            keyboardSound.volume = volume * 0.5;
+            clickSound.volume = volume * 0.5;
+            successSound.volume = volume * 0.7;
+            errorSound.volume = volume * 0.7;
+            
+            volumeValue.textContent = this.value;
+            
+            // 更新音乐图标
+            updateMusicIcons();
+        }
+        
+        // 更新音效音量
+        function updateEffectsVolume() {
+            effectsValue.textContent = this.value;
+            const effectsVolume = this.value / 100;
+            
+            // 更新音效音量
+            keyboardSound.volume = effectsVolume * 0.5;
+            clickSound.volume = effectsVolume * 0.5;
+            successSound.volume = effectsVolume * 0.7;
+            errorSound.volume = effectsVolume * 0.7;
+        }
+        
+        // 切换音乐播放状态
+        function toggleMusic() {
+            playSound(clickSound);
+            gameState.isMusicPlaying = !gameState.isMusicPlaying;
+            
+            if (gameState.isMusicPlaying) {
+                if (gameState.currentPage === 'case-detail') {
+                    bgMusic.play().catch(e => {
+                        console.log("播放音乐失败:", e);
+                        gameState.isMusicPlaying = false;
+                    });
+                } else if (gameState.currentPage === 'christmas') {
+                    christmasMusic.play().catch(e => {
+                        console.log("播放圣诞音乐失败:", e);
+                        gameState.isMusicPlaying = false;
+                    });
+                }
+            } else {
+                bgMusic.pause();
+                christmasMusic.pause();
+            }
+            
+            updateMusicIcons();
+        }
+        
+        // 更新音乐图标
+        function updateMusicIcons() {
+            const caseDetailMusicIcon = caseDetailMusicControl.querySelector('i');
+            const christmasMusicIcon = christmasMusicControl.querySelector('i');
+            
+            if (gameState.isMusicPlaying) {
+                caseDetailMusicIcon.className = 'fas fa-volume-up';
+                christmasMusicIcon.className = 'fas fa-volume-up';
+            } else {
+                caseDetailMusicIcon.className = 'fas fa-volume-mute';
+                christmasMusicIcon.className = 'fas fa-volume-mute';
+            }
+        }
+        
+        // ========== 缩放调整 ==========
+        function adjustScale() {
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            
+            const scaleX = screenWidth / 1920;
+            const scaleY = screenHeight / 1080;
+            const scaleFactor = Math.min(scaleX, scaleY);
+            
+            // 应用缩放
+            caseDetailPage.style.transform = `scale(${scaleFactor})`;
+            christmasPage.style.transform = `scale(${scaleFactor})`;
+            
+            // 居中显示
+            const offsetX = (screenWidth - 1920 * scaleFactor) / 2;
+            const offsetY = (screenHeight - 1080 * scaleFactor) / 2;
+            
+            caseDetailPage.style.left = `${offsetX}px`;
+            caseDetailPage.style.top = `${offsetY}px`;
+            
+            christmasPage.style.left = `${offsetX}px`;
+            christmasPage.style.top = `${offsetY}px`;
+        }
+        
+        // ========== 音乐设置 ==========
+        function setupMusic() {
+            console.log("设置音乐");
+            
+            // 设置音量
+            bgMusic.volume = gameState.currentVolume;
+            christmasMusic.volume = gameState.currentVolume;
+            keyboardSound.volume = 0.5;
+            clickSound.volume = 0.5;
+            successSound.volume = 0.7;
+            errorSound.volume = 0.7;
+            
+            // 更新音量滑块显示
+            volumeSlider.value = gameState.currentVolume * 100;
+            volumeValue.textContent = Math.round(gameState.currentVolume * 100);
+            
+            // 尝试播放背景音乐
+            if (gameState.isMusicPlaying) {
+                bgMusic.play().then(() => {
+                    console.log("背景音乐播放成功");
+                    gameState.musicStarted = true;
+                    updateMusicIcons();
+                }).catch(e => {
+                    console.log("背景音乐自动播放被阻止，需要用户交互");
+                    gameState.musicStarted = false;
+                    updateMusicIcons();
+                });
+            } else {
+                updateMusicIcons();
+            }
+        }
+        
+        // ========== 确保UI初始状态 ==========
+        function ensureUIInitialState() {
+            // 确保按钮可见且可点击
+            caseDetailContinueBtn.style.opacity = "1";
+            caseDetailContinueBtn.style.pointerEvents = "auto";
+            caseDetailAutoBtn.style.opacity = "1";
+            caseDetailAutoBtn.style.pointerEvents = "auto";
+            
+            // 确保对话框系统可见
+            document.getElementById('case-detail-dialog-box').style.opacity = "1";
+            document.getElementById('case-detail-name-box').style.opacity = "1";
+            caseDetailCharacterName.style.opacity = "1";
+            caseDetailDialogText.style.opacity = "1";
+            
+            // 显示叶警官对话状态图片
+            dialogueStateImage.style.opacity = "1";
+            dialogueStateImage.style.zIndex = "16";
+            
+            // 隐藏所有交互元素
+            casePhoto.style.opacity = "0";
+            puzzleContainer.style.opacity = "0";
+            darkAlleyImage.style.opacity = "0";
+            suspectImage.style.opacity = "0";
+            anonymousLetter.style.opacity = "0";
+            // 隐藏高光
+            if (highlightEffect) {
+                highlightEffect.style.opacity = "0";
+                highlightEffect.style.display = "none";
+                // 确保位置正确
+    highlightEffect.style.left = "195px";
+    highlightEffect.style.top = "170px";
+    highlightEffect.style.width = "370px";
+    highlightEffect.style.height = "459px";
+            }
+            decryptGif.style.opacity = "0";
+            inputContainer.style.opacity = "0";
+            wordInput.value = "";
+            wordInput.classList.remove("active");
+            submitBtn.style.opacity = "0";
+            
+            // 隐藏红圈和可点击区域
+            redCircles.forEach(circle => circle.style.display = "none");
+            clickableAreas.forEach(area => {
+                area.style.pointerEvents = "none";
+                area.style.display = "none";
+                area.classList.remove("active");
+            });
+            
+            // 确保继续按钮和自动按钮可见
+            caseDetailContinueBtn.style.display = "flex";
+            caseDetailAutoBtn.style.display = "flex";
+            
+            // 隐藏临时对话框
+            tempDialog.classList.remove("show");
+            tempDialogueStatePortrait.classList.remove("show");
+            
+            // 初始化报纸状态
+            gameState.isNewspaper1Showing = false;
+            gameState.isNewspaper2Showing = false;
+            
+            // 确保控制按钮始终显示
+            caseDetailRightControls.style.display = "flex";
+            christmasRightControls.style.display = "flex";
+            
+            console.log("UI初始化完成");
+        }
+        
+        // ========== 事件监听器 ==========
+        function setupEventListeners() {
+            console.log("设置事件监听器");
+            
+            // 第五页继续按钮
+            caseDetailContinueBtn.addEventListener('click', function(e) {
+                console.log("第五页继续按钮被点击，当前索引:", gameState.currentDialogueIndex);
+                e.stopPropagation();
+                playSound(clickSound);
+                
+                if (gameState.isTyping) {
+                    console.log("打字中，快速完成打字");
+                    finishTyping(false);
+                    return;
+                }
+                
+                // 检查是否在输入阶段
+                if (gameState.currentDialogueIndex === 14 && caseDetailDialogText.textContent.includes("意思是")) {
+                    console.log("在输入阶段，检查输入内容");
+                    // 检查输入框是否为空
+                    if (!wordInput.value.trim()) {
+                        console.log("输入为空，显示错误提示");
+                        playSound(errorSound);
+                        showTempDialog("叶警官", "再试试？", "images/人物立绘/叶半身/叶_思考_半身_普.png");
+                        return;
+                    }
+                    checkWordInputOnContinue();
+                    return;
+                }
+                
+                // 特殊按钮处理
+                if (caseDetailContinueBtn.textContent === "仔细查看照片") {
+                    if (gameState.currentPhase === 0 && gameState.currentDialogueIndex === 5) {
+                        console.log("显示照片交互");
+                        showPhotoInteraction();
+                        return;
+                    } else if (gameState.currentPhase === 4 && gameState.currentDialogueIndex === 9) {
+                        console.log("显示拼图交互");
+                        showPuzzleInteraction();
+                        return;
+                    }
+                }
+                
+                // 最后一句对话：添加匿名信到收集系统并切换到第六页
+                if (gameState.currentDialogueIndex === 21) {
+                    console.log("最后一句对话，添加匿名信到收集系统");
+                    addAnonymousLetterToCollection();
+                    switchToChristmasPage();
+                    return;
+                }
+                
+                // 下一句对话
+                console.log("进入下一句对话");
+                gameState.currentDialogueIndex++;
+                showDialogue();
+            });
+            
+            // 第五页自动按钮
+            caseDetailAutoBtn.addEventListener('click', function(e) {
+                console.log("第五页自动按钮被点击");
+                e.stopPropagation();
+                playSound(clickSound);
+                toggleAutoPlay(false);
+            });
+            
+            // 第六页继续按钮
+            christmasContinueBtn.addEventListener('click', function(e) {
+                console.log("第六页继续按钮被点击，当前索引:", gameState.currentDialogueIndex);
+                e.stopPropagation();
+                playSound(clickSound);
+                
+                if (gameState.isTyping) {
+                    console.log("打字中，快速完成打字");
+                    finishTyping(true);
+                    return;
+                }
+                
+                // 特殊按钮处理
+                if (christmasContinueBtn.textContent === "收下礼物") {
+                    console.log("收下礼物");
+                    christmasSock.classList.remove("show");
+                    dimOverlay.style.opacity = "0";
+                    gameState.hasReceivedSock = true;
+                    christmasContinueBtn.textContent = "继续";
+                    christmasContinueBtn.classList.remove("wide-btn");
+                }
+                
+                // 下一句对话
+                gameState.currentDialogueIndex++;
+                showDialogue();
+            });
+            
+            // 第六页自动按钮
+            christmasAutoBtn.addEventListener('click', function(e) {
+                console.log("第六页自动按钮被点击");
+                e.stopPropagation();
+                playSound(clickSound);
+                toggleAutoPlay(true);
+            });
+            
+            // 可点击区域事件
+            clickableAreas.forEach((area, index) => {
+                area.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    console.log("点击了可点击区域", index);
+                    playSound(clickSound);
+                    
+                    // 切换标记状态
+                    gameState.markedAreas[index] = !gameState.markedAreas[index];
+                    
+                    if (gameState.markedAreas[index]) {
+                        redCircles[index].style.display = "block";
+                        area.classList.add("active");
+                    } else {
+                        redCircles[index].style.display = "none";
+                        area.classList.remove("active");
+                    }
+                });
+            });
+            
+            // 提交按钮事件
+            submitBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                console.log("提交按钮被点击，当前阶段:", gameState.currentPhase);
+                playSound(clickSound);
+                
+                if (gameState.currentPhase === 1) {
+                    handlePhotoSubmit();
+                } else if (gameState.currentPhase === 2) {
+                    handlePuzzleSubmit();
+                }
+            });
+            
+            // 输入框事件
+            wordInput.addEventListener('input', function(e) {
+                if (gameState.isInputActive) {
+                    gameState.inputTextLength = e.target.value.length;
+                }
+            });
+            
+            wordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.stopPropagation();
+                    checkWordInputOnContinue();
+                }
+            });
+
+            // 添加焦点事件以更新输入状态
+            wordInput.addEventListener('focus', function() {
+                gameState.isInputActive = true;
+                console.log("输入框获得焦点，isInputActive = true");
+            });
+
+            wordInput.addEventListener('blur', function() {
+                gameState.isInputActive = false;
+                console.log("输入框失去焦点，isInputActive = false");
+            });
+            
+            // 拼图拖拽事件
+            setupPuzzleDragEvents();
+            
+            // 页面点击事件
+            caseDetailPage.addEventListener('click', function(e) {
+                if (gameState.currentPhase === 1) {
+                    handlePageClick(e);
+                }
+                
+                // 如果正在显示临时对话框，点击页面任何地方关闭
+                if (gameState.isShowingTemporaryDialog && !e.target.closest('.temp-dialog')) {
+                    closeTempDialog();
+                }
+            });
+            
+            // 设置按钮事件
+            caseDetailSettingsBtn.addEventListener('click', showSettingsPanel);
+            christmasSettingsBtn.addEventListener('click', showSettingsPanel);
+            
+            // 音乐控制按钮事件
+            caseDetailMusicControl.addEventListener('click', toggleMusic);
+            christmasMusicControl.addEventListener('click', toggleMusic);
+            
+            // 收集系统按钮事件
+            caseDetailInfoCollectionBtn.addEventListener('click', showInfoSystem);
+            caseDetailItemCollectionBtn.addEventListener('click', showCollectionSystem);
+            christmasInfoCollectionBtn.addEventListener('click', showInfoSystem);
+            christmasItemCollectionBtn.addEventListener('click', showCollectionSystem);
+            
+            // 设置面板关闭按钮
+            closeBtn.addEventListener('click', hideSettingsPanel);
+            
+            // 收集系统关闭按钮
+            closeCollectionBtn.addEventListener('click', hideCollectionSystem);
+            closeInfoBtn.addEventListener('click', hideInfoSystem);
+            itemViewClose.addEventListener('click', function() {
+                itemView.style.display = 'none';
+                modalOverlay.style.display = 'none';
+            });
+            
+            // 遮罩层点击事件
+            modalOverlay.addEventListener('click', function() {
+                hideSettingsPanel();
+                hideCollectionSystem();
+                hideInfoSystem();
+                itemView.style.display = 'none';
+            });
+            
+            // 音量控制
+            volumeSlider.addEventListener('input', updateVolume);
+            effectsSlider.addEventListener('input', updateEffectsVolume);
+            
+            // 键盘快捷键
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+            
+            // 页面点击以启动音乐
+            document.addEventListener('click', tryStartMusic);
+            
+            console.log("事件监听器设置完成");
+        }
+        
+        // 显示物品收集系统
+        function showCollectionSystem() {
+            playSound(clickSound);
+            collectionSystem.style.display = 'flex';
+            modalOverlay.style.display = 'block';
+        }
+        
+        // 隐藏物品收集系统
+        function hideCollectionSystem() {
+            playSound(clickSound);
+            collectionSystem.style.display = 'none';
+            modalOverlay.style.display = 'none';
+        }
+        
+        // 显示信息收集系统
+        function showInfoSystem() {
+            playSound(clickSound);
+            infoSystem.style.display = 'flex';
+            modalOverlay.style.display = 'block';
+        }
+        
+        // 隐藏信息收集系统
+        function hideInfoSystem() {
+            playSound(clickSound);
+            infoSystem.style.display = 'none';
+            modalOverlay.style.display = 'none';
+        }
+        
+        // ========== 拼图功能 ==========
+        function setupPuzzleDragEvents() {
+            puzzlePieces.forEach((piece, index) => {
+                piece.addEventListener('mousedown', function(e) {
+                    if (gameState.currentPhase !== 2) return;
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    gameState.isDragging = true;
+                    gameState.draggingPiece = piece;
+                    gameState.draggingIndex = index;
+                    gameState.draggedPieceOriginalIndex = index;
+                    
+                    const rect = piece.getBoundingClientRect();
+                    
+                    gameState.dragOffsetX = e.clientX - rect.left;
+                    gameState.dragOffsetY = e.clientY - rect.top;
+                    
+                    piece.classList.add("dragging");
+                    piece.style.zIndex = "30";
+                    
+                    // 保存原始位置
+                    gameState.draggedPieceOriginalPos = {
+                        left: parseInt(piece.style.left),
+                        top: parseInt(piece.style.top)
+                    };
+                });
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!gameState.isDragging || !gameState.draggingPiece) return;
+                
+                e.preventDefault();
+                
+                const containerRect = puzzleContainer.getBoundingClientRect();
+                const scaleX = containerRect.width / 1920;
+                const scaleY = containerRect.height / 1080;
+                
+                // 转换为容器内坐标
+                const x = (e.clientX - containerRect.left) / scaleX - gameState.dragOffsetX;
+                const y = (e.clientY - containerRect.top) / scaleY - gameState.dragOffsetY;
+                
+                const maxX = 1920 - gameState.draggingPiece.offsetWidth;
+                const maxY = 1080 - gameState.draggingPiece.offsetHeight;
+                
+                const clampedX = Math.max(0, Math.min(x, maxX));
+                const clampedY = Math.max(0, Math.min(y, maxY));
+                
+                gameState.draggingPiece.style.left = `${clampedX}px`;
+                gameState.draggingPiece.style.top = `${clampedY}px`;
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (!gameState.isDragging || !gameState.draggingPiece) return;
+                
+                gameState.isDragging = false;
+                gameState.draggingPiece.classList.remove("dragging");
+                
+                const piece = gameState.draggingPiece;
+                const pieceIndex = gameState.draggingIndex;
+                
+                // 检查是否接近目标位置
+                let targetIndex = -1;
+                let minDistance = Infinity;
+                
+                puzzleTargets.forEach((target, index) => {
+                    const targetRect = target.getBoundingClientRect();
+                    const pieceRect = piece.getBoundingClientRect();
+                    
+                    // 计算两个矩形中心的距离
+                    const pieceCenterX = pieceRect.left + pieceRect.width / 2;
+                    const pieceCenterY = pieceRect.top + pieceRect.height / 2;
+                    const targetCenterX = targetRect.left + targetRect.width / 2;
+                    const targetCenterY = targetRect.top + targetRect.height / 2;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(pieceCenterX - targetCenterX, 2) + 
+                        Math.pow(pieceCenterY - targetCenterY, 2)
+                    );
+                    
+                    if (distance < 150 && distance < minDistance) {
+                        minDistance = distance;
+                        targetIndex = index;
+                    }
+                });
+                
+                if (targetIndex !== -1) {
+                    // 检查目标位置是否已有拼图
+                    let occupiedPieceIndex = -1;
+                    puzzlePieces.forEach((otherPiece, otherIndex) => {
+                        if (otherIndex !== pieceIndex) {
+                            const otherRect = otherPiece.getBoundingClientRect();
+                            const targetRect = puzzleTargets[targetIndex].getBoundingClientRect();
+                            
+                            // 检查其他拼图是否在目标位置
+                            const otherCenterX = otherRect.left + otherRect.width / 2;
+                            const otherCenterY = otherRect.top + otherRect.height / 2;
+                            const targetCenterX = targetRect.left + targetRect.width / 2;
+                            const targetCenterY = targetRect.top + targetRect.height / 2;
+                            
+                            const distance = Math.sqrt(
+                                Math.pow(otherCenterX - targetCenterX, 2) + 
+                                Math.pow(otherCenterY - targetCenterY, 2)
+                            );
+                            
+                            if (distance < 50) {
+                                occupiedPieceIndex = otherIndex;
+                            }
+                        }
+                    });
+                    
+                    const containerRect = puzzleContainer.getBoundingClientRect();
+                    const scaleX = containerRect.width / 1920;
+                    const scaleY = containerRect.height / 1080;
+                    
+                    // 获取目标在容器内的坐标
+                    const targetLeft = parseInt(puzzleTargets[targetIndex].style.left);
+                    const targetTop = parseInt(puzzleTargets[targetIndex].style.top);
+                    
+                    if (occupiedPieceIndex !== -1) {
+                        // 交换位置
+                        const occupiedPiece = puzzlePieces[occupiedPieceIndex];
+                        
+                        // 保存被占据拼图的位置
+                        const occupiedLeft = parseInt(occupiedPiece.style.left);
+                        const occupiedTop = parseInt(occupiedPiece.style.top);
+                        
+                        // 将被占据的拼图移动到拖拽拼图的原始位置
+                        occupiedPiece.style.left = `${gameState.draggedPieceOriginalPos.left}px`;
+                        occupiedPiece.style.top = `${gameState.draggedPieceOriginalPos.top}px`;
+                        
+                        // 更新被占据拼图的位置记录
+                        gameState.currentPuzzlePositions[occupiedPieceIndex] = {
+                            left: gameState.draggedPieceOriginalPos.left,
+                            top: gameState.draggedPieceOriginalPos.top,
+                            correct: gameState.currentPuzzlePositions[occupiedPieceIndex].correct
+                        };
+                        
+                        // 将拖拽的拼图移动到目标位置
+                        piece.style.left = `${targetLeft}px`;
+                        piece.style.top = `${targetTop}px`;
+                        
+                        // 更新拖拽拼图的位置记录
+                        gameState.currentPuzzlePositions[pieceIndex] = {
+                            left: targetLeft,
+                            top: targetTop,
+                            correct: gameState.currentPuzzlePositions[pieceIndex].correct
+                        };
+                    } else {
+                        // 直接移动到目标位置
+                        piece.style.left = `${targetLeft}px`;
+                        piece.style.top = `${targetTop}px`;
+                        
+                        // 更新位置记录
+                        gameState.currentPuzzlePositions[pieceIndex] = {
+                            left: targetLeft,
+                            top: targetTop,
+                            correct: gameState.currentPuzzlePositions[pieceIndex].correct
+                        };
+                    }
+                    
+                    piece.style.zIndex = "19";
+                } else {
+                    // 如果没有吸附到目标，回到原始位置
+                    piece.style.left = `${gameState.draggedPieceOriginalPos.left}px`;
+                    piece.style.top = `${gameState.draggedPieceOriginalPos.top}px`;
+                    piece.style.zIndex = "19";
+                }
+                
+                gameState.draggingPiece = null;
+                gameState.draggingIndex = null;
+                gameState.draggedPieceOriginalIndex = null;
+            });
+        }
+        
+        function initPuzzle() {
+            // 保存正确的目标位置
+            gameState.correctPuzzlePositions = [
+                { left: 252, top: 155, correct: 1 },
+                { left: 610, top: 156, correct: 2 },
+                { left: 969, top: 156, correct: 3 },
+                { left: 1327, top: 156, correct: 4 }
+            ];
+            
+            // 初始化当前拼图位置数组
+            gameState.currentPuzzlePositions = [...gameState.correctPuzzlePositions];
+            
+            // 随机打乱位置
+            for (let i = gameState.currentPuzzlePositions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameState.currentPuzzlePositions[i], gameState.currentPuzzlePositions[j]] = 
+                [gameState.currentPuzzlePositions[j], gameState.currentPuzzlePositions[i]];
+            }
+            
+            // 记录随机顺序
+            gameState.puzzleOrder = gameState.currentPuzzlePositions.map(pos => ({
+                correct: pos.correct,
+                left: pos.left,
+                top: pos.top
+            }));
+            
+            // 应用位置到拼图块
+            puzzlePieces.forEach((piece, index) => {
+                const pos = gameState.currentPuzzlePositions[index];
+                piece.style.left = `${pos.left}px`;
+                piece.style.top = `${pos.top}px`;
+                piece.style.width = "343px";
+                piece.style.height = "485px";
+                piece.classList.remove("correct");
+            });
+        }
+        
+        function restorePuzzleOrder() {
+            // 如果已经有保存的顺序，则恢复
+            if (gameState.puzzleOrder && gameState.puzzleOrder.length > 0) {
+                gameState.currentPuzzlePositions = [...gameState.puzzleOrder];
+                
+                // 应用位置到拼图块
+                puzzlePieces.forEach((piece, index) => {
+                    const pos = gameState.currentPuzzlePositions[index];
+                    piece.style.left = `${pos.left}px`;
+                    piece.style.top = `${pos.top}px`;
+                    piece.style.width = "343px";
+                    piece.style.height = "485px";
+                    piece.classList.remove("correct");
+                });
+            } else {
+                // 如果没有保存的顺序，重新初始化
+                initPuzzle();
+            }
+        }
+        
+        function checkPuzzle() {
+            let correct = true;
+            
+            puzzlePieces.forEach((piece, index) => {
+                const currentPos = gameState.currentPuzzlePositions[index];
+                const targetPos = gameState.correctPuzzlePositions.find(pos => pos.correct === (index + 1));
+                const distance = Math.sqrt(
+                    Math.pow(currentPos.left - targetPos.left, 2) + 
+                    Math.pow(currentPos.top - targetPos.top, 2)
+                );
+                
+                if (distance < 50) {
+                    piece.classList.add("correct");
+                } else {
+                    piece.classList.remove("correct");
+                    correct = false;
+                }
+            });
+            
+            return correct;
+        }
+        
+        // ========== 交互功能 ==========
+        function showPhotoInteraction() {
+            gameState.currentPhase = 1;
+            
+            // 隐藏对话框和按钮
+            document.getElementById('case-detail-dialog-box').style.opacity = "0";
+            document.getElementById('case-detail-name-box').style.opacity = "0";
+            caseDetailCharacterName.style.opacity = "0";
+            caseDetailDialogText.style.opacity = "0";
+            caseDetailContinueBtn.style.opacity = "0";
+            caseDetailContinueBtn.style.pointerEvents = "none";
+            caseDetailAutoBtn.style.opacity = "0";
+            caseDetailAutoBtn.style.pointerEvents = "none";
+            dialogueStateImage.style.opacity = "0";
+            
+            // 隐藏报纸
+            newspaperFlyin.classList.remove("show");
+            newspaperFlyin2.classList.remove("show");
+            gameState.isNewspaper1Showing = false;
+            gameState.isNewspaper2Showing = false;
+            
+            // 显示案件照片
+            casePhoto.style.opacity = "1";
+            
+            // 显示可点击区域
+            clickableAreas.forEach((area, index) => {
+                area.style.pointerEvents = "auto";
+                area.style.display = "block";
+                area.classList.remove("active");
+            });
+            
+            // 重置红圈状态
+            redCircles.forEach(circle => circle.style.display = "none");
+            gameState.markedAreas = [false, false, false, false];
+            
+            // 显示提交按钮
+            submitBtn.style.opacity = "1";
+            submitBtn.textContent = "提交";
+            submitBtn.style.pointerEvents = "auto";
+        }
+        
+        function showPuzzleInteraction() {
+            gameState.currentPhase = 2;
+            
+            // 隐藏对话框和按钮
+            document.getElementById('case-detail-dialog-box').style.opacity = "0";
+            document.getElementById('case-detail-name-box').style.opacity = "0";
+            caseDetailCharacterName.style.opacity = "0";
+            caseDetailDialogText.style.opacity = "0";
+            caseDetailContinueBtn.style.opacity = "0";
+            caseDetailContinueBtn.style.pointerEvents = "none";
+            caseDetailAutoBtn.style.opacity = "0";
+            caseDetailAutoBtn.style.pointerEvents = "none";
+            dialogueStateImage.style.opacity = "0";
+            
+            // 隐藏报纸
+            newspaperFlyin.classList.remove("show");
+            newspaperFlyin2.classList.remove("show");
+            gameState.isNewspaper1Showing = false;
+            gameState.isNewspaper2Showing = false;
+            
+            // 显示拼图
+            puzzleContainer.style.opacity = "1";
+            puzzleContainer.style.pointerEvents = "auto";
+            
+            // 恢复拼图顺序
+            restorePuzzleOrder();
+            
+            // 显示提交按钮
+            submitBtn.style.opacity = "1";
+            submitBtn.textContent = "提交";
+            submitBtn.style.pointerEvents = "auto";
+        }
+        
+        function handlePhotoSubmit() {
+            const allMarked = gameState.markedAreas.every(marked => marked);
+            
+            if (allMarked) {
+                playSound(successSound);
+                
+                submitBtn.style.opacity = "0";
+                submitBtn.style.pointerEvents = "none";
+                clickableAreas.forEach(area => {
+                    area.style.pointerEvents = "none";
+                });
+                
+                gameState.currentPhase = 4;
+                gameState.currentDialogueIndex = 6;
+                
+                // 恢复对话框显示
+                document.getElementById('case-detail-dialog-box').style.opacity = "1";
+                document.getElementById('case-detail-name-box').style.opacity = "1";
+                caseDetailCharacterName.style.opacity = "1";
+                caseDetailDialogText.style.opacity = "1";
+                caseDetailContinueBtn.style.opacity = "1";
+                caseDetailContinueBtn.style.pointerEvents = "auto";
+                caseDetailContinueBtn.textContent = "继续";
+                caseDetailContinueBtn.classList.remove("wide-btn");
+                caseDetailAutoBtn.style.opacity = "1";
+                caseDetailAutoBtn.style.pointerEvents = "auto";
+                
+                // 保持红圈显示
+                redCircles.forEach((circle, index) => {
+                    if (gameState.markedAreas[index]) {
+                        circle.style.display = "block";
+                    }
+                });
+                
+                showDialogue();
+            } else {
+                playSound(errorSound);
+                showTempDialog("叶警官", "再试试？", "images/人物立绘/叶半身/叶_思考_半身_普.png");
+            }
+        }
+        
+        function handlePuzzleSubmit() {
+            const isCorrect = checkPuzzle();
+            
+            if (isCorrect) {
+                playSound(successSound);
+                
+                // 隐藏拼图块
+                puzzlePieces.forEach(piece => {
+                    piece.style.opacity = "0";
+                });
+                
+                // 隐藏拼图容器
+                puzzleContainer.style.opacity = "0";
+                puzzleContainer.style.pointerEvents = "none";
+                
+                // 隐藏提交按钮
+                submitBtn.style.opacity = "0";
+                submitBtn.style.pointerEvents = "none";
+                
+                // 显示完整暗巷图片
+                darkAlleyImage.style.opacity = "1";
+                
+                setTimeout(() => {
+                    gameState.currentPhase = 4;
+                    gameState.currentDialogueIndex = 10;
+                    
+                    document.getElementById('case-detail-dialog-box').style.opacity = "1";
+                    document.getElementById('case-detail-name-box').style.opacity = "1";
+                    caseDetailCharacterName.style.opacity = "1";
+                    caseDetailDialogText.style.opacity = "1";
+                    caseDetailContinueBtn.style.opacity = "1";
+                    caseDetailContinueBtn.style.pointerEvents = "auto";
+                    caseDetailContinueBtn.textContent = "继续";
+                    caseDetailContinueBtn.classList.remove("wide-btn");
+                    caseDetailAutoBtn.style.opacity = "1";
+                    caseDetailAutoBtn.style.pointerEvents = "auto";
+                    
+                    showDialogue();
+                }, 1500);
+            } else {
+                playSound(errorSound);
+                showTempDialog("叶警官", "再试试？", "images/人物立绘/叶半身/叶_思考_半身_普.png");
+            }
+        }
+        
+        function handlePageClick(e) {
+            const clickedArea = clickableAreas.some(area => {
+                const rect = area.getBoundingClientRect();
+                return e.clientX >= rect.left && e.clientX <= rect.right &&
+                       e.clientY >= rect.top && e.clientY <= rect.bottom;
+            });
+            
+            if (!clickedArea) {
+                showError(e.clientX, e.clientY);
+            }
+        }
+        
+        // ========== 辅助功能 ==========
+        function showError(x, y) {
+            const errorContainer = document.getElementById('error-container');
+            const errorSymbol = document.createElement('div');
+            errorSymbol.className = 'error-symbol';
+            errorSymbol.innerHTML = '<i class="fas fa-times"></i>';
+            errorSymbol.style.left = `${x - 40}px`;
+            errorSymbol.style.top = `${y - 40}px`;
+            
+            errorContainer.appendChild(errorSymbol);
+            
+            playSound(errorSound);
+            
+            setTimeout(() => {
+                errorSymbol.remove();
+            }, 1000);
+        }
+        
+        function showTempDialog(speaker, text, portrait) {
+            if (gameState.isShowingTemporaryDialog) return;
+            
+            gameState.isShowingTemporaryDialog = true;
+            
+            // 更新临时对话框内容
+            tempCharacterName.textContent = speaker;
+            tempDialogText.textContent = text;
+            
+            // 设置临时对话框立绘
+            if (portrait) {
+                tempDialogueStateImage.src = portrait;
+                tempDialogueStatePortrait.classList.add("show");
+            } else {
+                tempDialogueStatePortrait.classList.remove("show");
+            }
+            
+            // 显示临时对话框
+            tempDialog.classList.add("show");
+            
+            // 设置自动关闭
+            if (gameState.temporaryDialogTimeout) {
+                clearTimeout(gameState.temporaryDialogTimeout);
+            }
+            
+            gameState.temporaryDialogTimeout = setTimeout(() => {
+                closeTempDialog();
+            }, 2000);
+        }
+        
+        function closeTempDialog() {
+            if (!gameState.isShowingTemporaryDialog) return;
+            
+            gameState.isShowingTemporaryDialog = false;
+            tempDialog.classList.remove("show");
+            tempDialogueStatePortrait.classList.remove("show");
+            
+            if (gameState.temporaryDialogTimeout) {
+                clearTimeout(gameState.temporaryDialogTimeout);
+                gameState.temporaryDialogTimeout = null;
+            }
+            
+            // 重新聚焦输入框
+            if (gameState.isInputActive) {
+                setTimeout(() => {
+                    wordInput.focus();
+                }, 100);
+            }
+        }
+        
+        function checkWordInputOnContinue() {
+            const input = wordInput.value.trim();
+            
+            if (!input) {
+                // 输入为空
+                playSound(errorSound);
+                showTempDialog("叶警官", "再试试？", "images/人物立绘/叶半身/叶_思考_半身_普.png");
+                return;
+            }
+            
+            const inputLower = input.toLowerCase();
+            
+            if (inputLower === "white") {
+                // 输入正确
+                playSound(successSound);
+                inputContainer.style.opacity = "0";
+                wordInput.classList.remove("active");
+                wordInput.blur();
+                gameState.isInputActive = false;
+                gameState.inputVerified = true;
+                
+                // 添加匿名信到收集系统
+                addAnonymousLetterToCollection();
+                
+                // 直接进入下一句对话（跳过显示输入的那句话）
+                gameState.currentDialogueIndex = 15;
+                showDialogue();
+            } else if (inputLower === "angie") {
+                // 输入Angie
+                playSound(errorSound);
+                showTempDialog("叶警官", "想点别的！", "images/人物立绘/叶半身/叶_普_半身_羞羞.png");
+            } else {
+                // 输入其他错误答案
+                playSound(errorSound);
+                showTempDialog("叶警官", "再试试？", "images/人物立绘/叶半身/叶_思考_半身_普.png");
+            }
+        }
+        
+        // ========== 对话系统 ==========
+        function showDialogue() {
+            const isChristmasPage = christmasPage.style.opacity === "1" && christmasPage.style.pointerEvents === "auto";
+            let dialogues;
+            
+            if (isChristmasPage) {
+                dialogues = christmasDialogues;
+                gameState.currentPage = 'christmas';
+            } else {
+                dialogues = caseDetailDialogues;
+                gameState.currentPage = 'case-detail';
+            }
+            
+            if (gameState.currentDialogueIndex < dialogues.length) {
+                const dialogue = dialogues[gameState.currentDialogueIndex];
+                
+                // 特殊处理：第六页的"谢谢"对话后添加圣诞袜
+                if (isChristmasPage && gameState.currentDialogueIndex === 5) {
+                    // 这是"谢谢"对话，添加圣诞袜到收集系统
+                    setTimeout(() => {
+                        addChristmasSockToCollection();
+                    }, 500);
+                }
+                
+                // 更新角色姓名
+                if (isChristmasPage) {
+                    christmasCharacterName.textContent = dialogue.speaker;
+                } else {
+                    caseDetailCharacterName.textContent = dialogue.speaker;
+                }
+                
+                // 处理特殊显示
+                handleSpecialDisplay(dialogue, isChristmasPage);
+                
+                // 设置打字机效果
+                gameState.currentText = dialogue.text;
+                gameState.charIndex = 0;
+                gameState.isTyping = true;
+                
+                // 重置音效时间戳
+                gameState.lastSoundTime = 0;
+                
+                // 清空对话框内容
+                if (isChristmasPage) {
+                    christmasDialogText.innerHTML = '';
+                } else {
+                    caseDetailDialogText.innerHTML = '';
+                }
+                
+                // 开始打字机效果
+                startTypewriter(dialogue, isChristmasPage);
+            } else {
+                if (isChristmasPage) {
+                    showChristmasPopup();
+                }
+            }
+        }
+        
+        function handleSpecialDisplay(dialogue, isChristmasPage) {
+            console.log("处理特殊显示:", dialogue);
+            
+            // 隐藏所有特殊元素
+            casePhoto.style.opacity = "0";
+            puzzleContainer.style.opacity = "0";
+            puzzleContainer.style.pointerEvents = "none";
+            darkAlleyImage.style.opacity = "0";
+            suspectImage.style.opacity = "0";
+            anonymousLetter.style.opacity = "0";
+            
+            // 始终先隐藏高光特效
+            if (highlightEffect) {
+                highlightEffect.style.opacity = "0";
+                highlightEffect.style.display = "none";
+                highlightEffect.style.left = "195px";
+        highlightEffect.style.top = "170px";
+        highlightEffect.style.width = "370px";
+        highlightEffect.style.height = "459px";
+            }
+            
+            // 处理解密GIF
+            if (dialogue.showImage === "decrypt-gif") {
+                decryptGif.src = decryptGif.getAttribute('data-src');
+                decryptGif.style.opacity = "1";
+            } else {
+                decryptGif.style.opacity = "0";
+            }
+            
+            inputContainer.style.opacity = "0";
+            wordInput.value = "";
+            wordInput.classList.remove("active");
+            gameState.isInputActive = false;
+            gameState.inputVerified = false;
+            submitBtn.style.opacity = "0";
+            
+            // 报纸显示逻辑
+            if (dialogue.showNewspaper) {
+                newspaperFlyin2.classList.remove("show");
+                gameState.isNewspaper2Showing = false;
+                
+                setTimeout(() => {
+                    newspaperFlyin.classList.add("show");
+                    gameState.isNewspaper1Showing = true;
+                }, 100);
+            } 
+            else if (dialogue.showNewspaper2) {
+                newspaperFlyin.classList.remove("show");
+                gameState.isNewspaper1Showing = false;
+                
+                setTimeout(() => {
+                    newspaperFlyin2.classList.add("show");
+                    gameState.isNewspaper2Showing = true;
+                }, 100);
+            } 
+            else if (dialogue.keepNewspaper2) {
+                newspaperFlyin.classList.remove("show");
+                gameState.isNewspaper1Showing = false;
+                
+                if (!gameState.isNewspaper2Showing) {
+                    setTimeout(() => {
+                        newspaperFlyin2.classList.add("show");
+                        gameState.isNewspaper2Showing = true;
+                    }, 100);
+                }
+            } 
+            else {
+                if (!dialogue.keepNewspaper2) {
+                    newspaperFlyin.classList.remove("show");
+                    newspaperFlyin2.classList.remove("show");
+                    gameState.isNewspaper1Showing = false;
+                    gameState.isNewspaper2Showing = false;
+                }
+            }
+            
+            // 第六页第一句对话：隐藏所有图片
+            if (isChristmasPage && dialogue.noImage) {
+                fullBodyImage.style.opacity = "0";
+            }
+            
+            // 红圈显示逻辑
+            if (dialogue.keepRedCircles) {
+                redCircles.forEach((circle, index) => {
+                    if (gameState.markedAreas[index]) {
+                        circle.style.display = "block";
+                    }
+                });
+            } else if (dialogue.hideRedCircles) {
+                redCircles.forEach(circle => circle.style.display = "none");
+                clickableAreas.forEach(area => {
+                    area.style.pointerEvents = "none";
+                    area.style.display = "none";
+                    area.classList.remove("active");
+                });
+            } else {
+                redCircles.forEach(circle => circle.style.display = "none");
+                clickableAreas.forEach(area => {
+                    area.style.pointerEvents = "none";
+                    area.style.display = "none";
+                    area.classList.remove("active");
+                });
+            }
+            
+            // 第六页元素
+            christmasSock.classList.remove("show");
+            dimOverlay.style.opacity = "0";
+            
+            // 确保按钮在正确的位置
+            if (isChristmasPage) {
+                christmasContinueBtn.style.zIndex = "20";
+                christmasAutoBtn.style.zIndex = "20";
+                christmasContinueBtn.style.opacity = "1";
+                christmasContinueBtn.style.pointerEvents = "auto";
+                christmasAutoBtn.style.opacity = "1";
+                christmasAutoBtn.style.pointerEvents = "auto";
+            } else {
+                caseDetailContinueBtn.style.zIndex = "20";
+                caseDetailAutoBtn.style.zIndex = "20";
+            }
+            
+            // 根据对话显示特定元素
+            if (dialogue.showImage === "case-photo") {
+                casePhoto.style.opacity = "1";
+            } else if (dialogue.showImage === "dark-alley-image") {
+                darkAlleyImage.style.opacity = "1";
+            } else if (dialogue.showImage === "suspect-image") {
+                suspectImage.style.opacity = "1";
+                // 只在第13句对话（索引12）时才显示高光并设置新位置
+                if (gameState.currentDialogueIndex === 12) {
+                    // 设置新位置
+                    highlightEffect.style.left = "195px";
+                    highlightEffect.style.top = "170px";
+                    highlightEffect.style.width = "370px";
+                    highlightEffect.style.height = "459px";
+                    // 显示高光
+                    highlightEffect.style.opacity = "1";
+                    highlightEffect.style.display = "block";
+                }
+            } else if (dialogue.showImage === "anonymous-letter") {
+                // 确保匿名信显示
+                console.log("显示匿名信");
+                anonymousLetter.style.opacity = "1";
+            }
+            
+            if (dialogue.showPuzzle) {
+                puzzleContainer.style.opacity = "1";
+                puzzleContainer.style.pointerEvents = "auto";
+            }
+            
+            if (dialogue.showInput) {
+                inputContainer.style.opacity = "1";
+                gameState.isInputActive = true;
+                setTimeout(() => {
+                    wordInput.classList.add("active");
+                    wordInput.focus();
+                }, 100);
+            }
+            
+            if (dialogue.showSock) {
+                setTimeout(() => {
+                    christmasSock.classList.add("show");
+                    dimOverlay.style.opacity = "1";
+                }, 1000);
+            }
+            
+            // 更新对话状态图片
+            if (isChristmasPage) {
+                if (dialogue.noPortrait) {
+                    fullBodyImage.style.opacity = "0";
+                } else if (dialogue.showFullBody) {
+                    fullBodyImage.src = dialogue.showFullBody;
+                    fullBodyImage.style.opacity = "1";
+                } else if (dialogue.portrait) {
+                    fullBodyImage.src = dialogue.portrait;
+                    fullBodyImage.style.opacity = "1";
+                } else {
+                    fullBodyImage.style.opacity = "1";
+                }
+            } else {
+                if (dialogue.noPortrait) {
+                    dialogueStateImage.style.opacity = "0";
+                } else if (dialogue.portrait) {
+                    dialogueStateImage.src = dialogue.portrait;
+                    dialogueStateImage.style.opacity = "1";
+                    dialogueStateImage.style.zIndex = "16";
+                } else if (dialogue.keepPortrait) {
+                    dialogueStateImage.style.opacity = "1";
+                } else {
+                    dialogueStateImage.style.opacity = "0";
+                }
+            }
+            
+            // 更新按钮文本
+            if (dialogue.changeButtonText) {
+                if (isChristmasPage) {
+                    christmasContinueBtn.textContent = dialogue.changeButtonText;
+                    if (dialogue.changeButtonText === "收下礼物") {
+                        christmasContinueBtn.classList.add("wide-btn");
+                    } else {
+                        christmasContinueBtn.classList.remove("wide-btn");
+                    }
+                } else {
+                    caseDetailContinueBtn.textContent = dialogue.changeButtonText;
+                    if (dialogue.changeButtonText === "仔细查看照片") {
+                        caseDetailContinueBtn.classList.add("wide-btn");
+                    } else {
+                        caseDetailContinueBtn.classList.remove("wide-btn");
+                    }
+                }
+            } else {
+                if (isChristmasPage) {
+                    christmasContinueBtn.textContent = "继续";
+                    christmasContinueBtn.classList.remove("wide-btn");
+                } else {
+                    caseDetailContinueBtn.textContent = "继续";
+                    caseDetailContinueBtn.classList.remove("wide-btn");
+                }
+            }
+            
+            // 隐藏自动按钮
+            if (dialogue.hideAutoBtn) {
+                if (isChristmasPage) {
+                    christmasAutoBtn.style.opacity = "0";
+                    christmasAutoBtn.style.pointerEvents = "none";
+                } else {
+                    caseDetailAutoBtn.style.opacity = "0";
+                    caseDetailAutoBtn.style.pointerEvents = "none";
+                }
+            } else {
+                if (isChristmasPage) {
+                    christmasAutoBtn.style.opacity = "1";
+                    christmasAutoBtn.style.pointerEvents = "auto";
+                } else {
+                    caseDetailAutoBtn.style.opacity = "1";
+                    caseDetailAutoBtn.style.pointerEvents = "auto";
+                }
+            }
+            
+            if (dialogue.phase !== undefined) {
+                gameState.currentPhase = dialogue.phase;
+            }
+        }
+        
+        function startTypewriter(dialogue, isChristmasPage) {
+            if (gameState.typewriterInterval) {
+                clearInterval(gameState.typewriterInterval);
+                gameState.typewriterInterval = null;
+            }
+            
+            // 立即播放第一个字符的音效
+            playKeyboardSound();
+            gameState.lastSoundTime = Date.now();
+            
+            gameState.typewriterInterval = setInterval(() => {
+                if (gameState.charIndex < gameState.currentText.length) {
+                    const char = gameState.currentText.charAt(gameState.charIndex);
+                    
+                    if (isChristmasPage) {
+                        christmasDialogText.innerHTML += char;
+                    } else {
+                        caseDetailDialogText.innerHTML += char;
+                    }
+                    
+                    gameState.charIndex++;
+                    
+                    // 添加光标
+                    if (isChristmasPage) {
+                        christmasDialogText.innerHTML = gameState.currentText.substring(0, gameState.charIndex) + '<span class="cursor"></span>';
+                    } else {
+                        caseDetailDialogText.innerHTML = gameState.currentText.substring(0, gameState.charIndex) + '<span class="cursor"></span>';
+                    }
+                    
+                    // 播放打字音效
+                    const currentTime = Date.now();
+                    const charToPlaySound = char.trim() !== '' && gameState.charIndex % 2 === 0;
+                    
+                    if (charToPlaySound && currentTime - gameState.lastSoundTime > gameState.soundCooldown) {
+                        playKeyboardSound();
+                        gameState.lastSoundTime = currentTime;
+                    }
+                    
+                } else {
+                    finishTyping(isChristmasPage, dialogue);
+                }
+            }, gameState.typewriterSpeed);
+        }
+        
+        function finishTyping(isChristmasPage, dialogue) {
+            if (gameState.typewriterInterval) {
+                clearInterval(gameState.typewriterInterval);
+                gameState.typewriterInterval = null;
+            }
+            
+            gameState.isTyping = false;
+            
+            // 移除光标
+            if (isChristmasPage) {
+                christmasDialogText.innerHTML = gameState.currentText;
+            } else {
+                caseDetailDialogText.innerHTML = gameState.currentText;
+            }
+            
+            stopKeyboardSound();
+            
+            // 确保按钮可见
+            if (isChristmasPage) {
+                christmasContinueBtn.style.opacity = "1";
+                christmasContinueBtn.style.pointerEvents = "auto";
+                if (dialogue.hideAutoBtn) {
+                    christmasAutoBtn.style.opacity = "0";
+                    christmasAutoBtn.style.pointerEvents = "none";
+                } else {
+                    christmasAutoBtn.style.opacity = "1";
+                    christmasAutoBtn.style.pointerEvents = "auto";
+                }
+            } else {
+                caseDetailContinueBtn.style.opacity = "1";
+                caseDetailContinueBtn.style.pointerEvents = "auto";
+                if (dialogue.hideAutoBtn) {
+                    caseDetailAutoBtn.style.opacity = "0";
+                    caseDetailAutoBtn.style.pointerEvents = "none";
+                } else {
+                    caseDetailAutoBtn.style.opacity = "1";
+                    caseDetailAutoBtn.style.pointerEvents = "auto";
+                }
+            }
+            
+            if (gameState.isAutoPlay) {
+                scheduleNextAutoDialogue(isChristmasPage);
+            }
+        }
+        
+        // ========== 自动播放 ==========
+        function toggleAutoPlay(isChristmasPage) {
+            playSound(clickSound);
+            
+            gameState.isAutoPlay = !gameState.isAutoPlay;
+            
+            if (gameState.isAutoPlay) {
+                if (isChristmasPage) {
+                    christmasAutoBtn.classList.add("active");
+                    christmasAutoBtn.textContent = "停止";
+                } else {
+                    caseDetailAutoBtn.classList.add("active");
+                    caseDetailAutoBtn.textContent = "停止";
+                }
+                
+                if (!gameState.isTyping) {
+                    scheduleNextAutoDialogue(isChristmasPage);
+                }
+            } else {
+                if (isChristmasPage) {
+                    christmasAutoBtn.classList.remove("active");
+                    christmasAutoBtn.textContent = "自动";
+                } else {
+                    caseDetailAutoBtn.classList.remove("active");
+                    caseDetailAutoBtn.textContent = "自动";
+                }
+                
+                if (gameState.autoPlayTimeout) {
+                    clearTimeout(gameState.autoPlayTimeout);
+                    gameState.autoPlayTimeout = null;
+                }
+            }
+        }
+        
+        function scheduleNextAutoDialogue(isChristmasPage) {
+            if (gameState.autoPlayTimeout) {
+                clearTimeout(gameState.autoPlayTimeout);
+            }
+            
+            gameState.autoPlayTimeout = setTimeout(() => {
+                if (gameState.isAutoPlay && !gameState.isTyping) {
+                    const dialogues = isChristmasPage ? christmasDialogues : caseDetailDialogues;
+                    if (gameState.currentDialogueIndex < dialogues.length - 1) {
+                        if (isChristmasPage) {
+                            christmasContinueBtn.click();
+                        } else {
+                            caseDetailContinueBtn.click();
+                        }
+                    } else {
+                        gameState.isAutoPlay = false;
+                        if (isChristmasPage) {
+                            christmasAutoBtn.classList.remove("active");
+                            christmasAutoBtn.textContent = "自动";
+                        } else {
+                            caseDetailAutoBtn.classList.remove("active");
+                            caseDetailAutoBtn.textContent = "自动";
+                        }
+                    }
+                }
+            }, gameState.autoPlayDelay);
+        }
+        
+        // ========== 音效功能 ==========
+        function playKeyboardSound() {
+            try {
+                keyboardSound.currentTime = 0;
+                keyboardSound.play().catch(e => {
+                    console.log("键盘音效播放失败:", e);
+                });
+            } catch(e) {
+                console.log("键盘音效播放出错:", e);
+            }
+        }
+        
+        function stopKeyboardSound() {
+            try {
+                keyboardSound.pause();
+                keyboardSound.currentTime = 0;
+            } catch(e) {
+                console.log("停止键盘音效时出错:", e);
+            }
+        }
+        
+        function playSound(audioElement) {
+            try {
+                audioElement.currentTime = 0;
+                audioElement.play().catch(e => {
+                    console.log("音效播放失败:", e);
+                });
+            } catch(e) {
+                console.log("音效播放出错:", e);
+            }
+        }
+        
+        function tryStartMusic() {
+            if (!gameState.musicStarted && gameState.isMusicPlaying) {
+                bgMusic.play().then(() => {
+                    console.log("背景音乐播放成功");
+                    gameState.musicStarted = true;
+                    updateMusicIcons();
+                }).catch(e => {
+                    console.log("背景音乐播放失败:", e);
+                });
+            }
+        }
+        
+        // ========== 键盘快捷键 ==========
+        function handleKeyboardShortcuts(e) {
+            // 如果焦点在输入框上，只允许Escape和Enter键
+            if (gameState.isInputActive) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    // 可以在这里处理Escape键关闭输入框的逻辑
+                    return;
+                }
+                
+                if (e.key === 'Enter' && e.target === document.body) {
+                    e.preventDefault();
+                    checkWordInputOnContinue();
+                    return;
+                }
+                
+                // 输入状态下禁用所有其他快捷键
+                return;
+            }
+            
+            // 以下是非输入状态下的快捷键处理
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (christmasPopup.style.display === "block") {
+                    christmasPopup.style.opacity = "0";
+                    setTimeout(() => {
+                        christmasPopup.style.display = "none";
+                    }, 300);
+                } else if (settingsPanel.style.display === 'block') {
+                    hideSettingsPanel();
+                } else if (collectionSystem.style.display === 'flex') {
+                    hideCollectionSystem();
+                } else if (infoSystem.style.display === 'flex') {
+                    hideInfoSystem();
+                } else if (itemView.style.display === 'flex') {
+                    itemView.style.display = 'none';
+                    modalOverlay.style.display = 'none';
+                }
+            }
+            
+            if ((e.key === ' ' || e.key === 'Enter') && e.target === document.body) {
+                e.preventDefault();
+                
+                if (caseDetailPage.style.opacity === "1" && caseDetailPage.style.pointerEvents === "auto") {
+                    caseDetailContinueBtn.click();
+                } else if (christmasPage.style.opacity === "1" && christmasPage.style.pointerEvents === "auto") {
+                    christmasContinueBtn.click();
+                }
+            }
+            
+            if (e.key === 'a' || e.key === 'A') {
+                e.preventDefault();
+                if (caseDetailPage.style.opacity === "1" && caseDetailPage.style.pointerEvents === "auto") {
+                    toggleAutoPlay(false);
+                } else if (christmasPage.style.opacity === "1" && christmasPage.style.pointerEvents === "auto") {
+                    toggleAutoPlay(true);
+                }
+            }
+            
+            if (e.key === 'i' || e.key === 'I') {
+                e.preventDefault();
+                showCollectionSystem();
+            }
+            
+            if (e.key === 'n' || e.key === 'N') {
+                e.preventDefault();
+                showInfoSystem();
+            }
+        }
+        
+        // ========== 第六页功能 ==========
+        function switchToChristmasPage() {
+            console.log("切换到圣诞特辑页面");
+            
+            caseDetailPage.style.opacity = "0";
+            caseDetailPage.style.pointerEvents = "none";
+            
+            christmasPage.style.opacity = "1";
+            christmasPage.style.pointerEvents = "auto";
+            
+            // 确保第六页的按钮可点击
+            christmasContinueBtn.style.opacity = "1";
+            christmasContinueBtn.style.pointerEvents = "auto";
+            christmasContinueBtn.style.zIndex = "20";
+            christmasAutoBtn.style.opacity = "1";
+            christmasAutoBtn.style.pointerEvents = "auto";
+            christmasAutoBtn.style.zIndex = "20";
+            
+            // 切换音乐
+            bgMusic.pause();
+            if (gameState.isMusicPlaying) {
+                christmasMusic.currentTime = 0;
+                christmasMusic.play().catch(e => {
+                    console.log("圣诞音乐播放失败:", e);
+                });
+            }
+            
+            gameState.currentDialogueIndex = 0;
+            gameState.currentPhase = 0;
+            
+            // 确保第六页的对话框系统可见
+            document.getElementById('christmas-dialog-box').style.opacity = "1";
+            document.getElementById('christmas-name-box').style.opacity = "1";
+            christmasCharacterName.style.opacity = "1";
+            christmasDialogText.style.opacity = "1";
+            
+            showDialogue();
+            
+            console.log("已切换到圣诞特辑页面");
+        }
+        
+        function showChristmasPopup() {
+            christmasPopup.style.display = "block";
+            setTimeout(() => {
+                christmasPopup.style.opacity = "1";
+            }, 100);
+            
+            playSound(successSound);
+        }
+        
+        // ========== 页面加载 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM加载完成，开始初始化游戏");
+            initGame();
+        });
+    </script>
+</body>
+</html>

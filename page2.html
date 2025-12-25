@@ -159,6 +159,8 @@
             z-index: 18;
             opacity: 0;
             pointer-events: none;
+            /* 移动端优化 */
+            touch-action: none;
         }
         
         .puzzle-piece {
@@ -168,12 +170,14 @@
             z-index: 19;
             transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease, opacity 0.5s ease;
             /* 添加移动端优化 */
-            touch-action: none; /* 禁止默认触摸行为 */
+            touch-action: none !important; /* 禁止默认触摸行为 */
             -webkit-touch-callout: none; /* 禁止长按菜单 */
             -webkit-user-select: none; /* 禁止文本选择 */
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+            will-change: transform; /* 优化移动端性能 */
         }
         
         .puzzle-piece.dragging {
@@ -2644,7 +2648,7 @@
             modalOverlay.style.display = 'none';
         }
         
-        // ========== 拼图功能 ==========
+        // ========== 拼图拖拽事件修复 ==========
         function setupPuzzleDragEvents() {
             puzzlePieces.forEach((piece, index) => {
                 // 鼠标事件监听
@@ -2652,12 +2656,17 @@
                     startDrag(e, index);
                 });
                 
-                // 触摸事件监听（移动端）
+                // 触摸事件监听（移动端）- 修复触摸事件
                 piece.addEventListener('touchstart', function(e) {
-                    e.preventDefault(); // 防止滚动
+                    if (e.cancelable) e.preventDefault(); // 防止滚动
                     const touch = e.touches[0];
                     startDrag(touch, index);
-                });
+                }, { passive: false });
+                
+                // 为移动端添加触摸事件的手势支持
+                piece.addEventListener('touchmove', function(e) {
+                    if (e.cancelable) e.preventDefault();
+                }, { passive: false });
             });
             
             // 鼠标移动事件
@@ -2665,12 +2674,16 @@
                 doDrag(e);
             });
             
-            // 触摸移动事件（移动端）
+            // 触摸移动事件（移动端）- 修复触摸移动
             document.addEventListener('touchmove', function(e) {
-                e.preventDefault(); // 防止页面滚动
-                const touch = e.touches[0];
-                doDrag(touch);
-            }, { passive: false }); // 必须设置为非passive才能调用preventDefault
+                if (gameState.isDragging && e.cancelable) {
+                    e.preventDefault(); // 防止页面滚动
+                }
+                if (gameState.isDragging && e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    doDrag(touch);
+                }
+            }, { passive: false });
             
             // 鼠标松开事件
             document.addEventListener('mouseup', function() {
@@ -2687,11 +2700,11 @@
                 stopDrag();
             });
             
-            // 开始拖拽（通用函数）
+            // 开始拖拽（通用函数）- 修复坐标计算
             function startDrag(e, index) {
                 if (gameState.currentPhase !== 2) return;
                 
-                e.preventDefault();
+                if (e.cancelable) e.preventDefault();
                 e.stopPropagation();
                 
                 gameState.isDragging = true;
@@ -2699,31 +2712,39 @@
                 gameState.draggingIndex = index;
                 gameState.draggedPieceOriginalIndex = index;
                 
-                // 获取设备像素比，处理缩放
-                const rect = gameState.draggingPiece.getBoundingClientRect();
+                // 获取容器和拼图块的边界
+                const containerRect = puzzleContainer.getBoundingClientRect();
+                const pieceRect = gameState.draggingPiece.getBoundingClientRect();
+                
+                // 计算缩放比例
+                const scaleX = containerRect.width / 1920;
+                const scaleY = containerRect.height / 1080;
                 
                 // 获取触摸/鼠标位置
-                const clientX = e.clientX || e.touches[0].clientX;
-                const clientY = e.clientY || e.touches[0].clientY;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
                 
-                gameState.dragOffsetX = clientX - rect.left;
-                gameState.dragOffsetY = clientY - rect.top;
+                // 计算偏移量（相对于拼图块左上角）
+                gameState.dragOffsetX = (clientX - pieceRect.left) / scaleX;
+                gameState.dragOffsetY = (clientY - pieceRect.top) / scaleY;
                 
                 gameState.draggingPiece.classList.add("dragging");
                 gameState.draggingPiece.style.zIndex = "30";
                 
-                // 保存原始位置
+                // 保存原始位置（容器内坐标）
                 gameState.draggedPieceOriginalPos = {
                     left: parseInt(gameState.draggingPiece.style.left) || 0,
                     top: parseInt(gameState.draggingPiece.style.top) || 0
                 };
+                
+                console.log("开始拖拽，索引:", index, "偏移量:", gameState.dragOffsetX, gameState.dragOffsetY);
             }
             
-            // 执行拖拽（通用函数）
+            // 执行拖拽（通用函数）- 修复坐标转换
             function doDrag(e) {
                 if (!gameState.isDragging || !gameState.draggingPiece) return;
                 
-                e.preventDefault();
+                if (e.cancelable) e.preventDefault();
                 
                 const containerRect = puzzleContainer.getBoundingClientRect();
                 const scaleX = containerRect.width / 1920;
@@ -2733,97 +2754,110 @@
                 const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
                 const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
                 
-                // 转换为容器内坐标
-                const x = (clientX - containerRect.left) / scaleX - gameState.dragOffsetX;
-                const y = (clientY - containerRect.top) / scaleY - gameState.dragOffsetY;
+                // 转换为容器内坐标（1920x1080坐标系）
+                const containerX = (clientX - containerRect.left) / scaleX;
+                const containerY = (clientY - containerRect.top) / scaleY;
                 
+                // 计算拼图块的新位置
+                const newX = containerX - gameState.dragOffsetX;
+                const newY = containerY - gameState.dragOffsetY;
+                
+                // 限制在容器范围内
                 const maxX = 1920 - gameState.draggingPiece.offsetWidth;
                 const maxY = 1080 - gameState.draggingPiece.offsetHeight;
                 
-                const clampedX = Math.max(0, Math.min(x, maxX));
-                const clampedY = Math.max(0, Math.min(y, maxY));
+                const clampedX = Math.max(0, Math.min(newX, maxX));
+                const clampedY = Math.max(0, Math.min(newY, maxY));
                 
+                // 设置新位置
                 gameState.draggingPiece.style.left = `${clampedX}px`;
                 gameState.draggingPiece.style.top = `${clampedY}px`;
+                
+                // 更新位置记录
+                if (gameState.draggingIndex !== null) {
+                    gameState.currentPuzzlePositions[gameState.draggingIndex] = {
+                        left: clampedX,
+                        top: clampedY,
+                        correct: gameState.currentPuzzlePositions[gameState.draggingIndex].correct
+                    };
+                }
             }
             
-            // 停止拖拽（通用函数）
+            // 停止拖拽（通用函数）- 修复吸附逻辑
             function stopDrag() {
                 if (!gameState.isDragging || !gameState.draggingPiece) return;
                 
-                gameState.isDragging = false;
-                gameState.draggingPiece.classList.remove("dragging");
-                
                 const piece = gameState.draggingPiece;
                 const pieceIndex = gameState.draggingIndex;
+                
+                console.log("停止拖拽，拼图块:", pieceIndex, "当前位置:", 
+                    gameState.currentPuzzlePositions[pieceIndex]);
                 
                 // 检查是否接近目标位置
                 let targetIndex = -1;
                 let minDistance = Infinity;
                 
                 puzzleTargets.forEach((target, index) => {
-                    const targetRect = target.getBoundingClientRect();
-                    const pieceRect = piece.getBoundingClientRect();
+                    const targetLeft = parseInt(target.style.left);
+                    const targetTop = parseInt(target.style.top);
+                    const targetWidth = parseInt(target.style.width);
+                    const targetHeight = parseInt(target.style.height);
+                    
+                    const pieceLeft = parseInt(piece.style.left);
+                    const pieceTop = parseInt(piece.style.top);
+                    const pieceWidth = piece.offsetWidth;
+                    const pieceHeight = piece.offsetHeight;
                     
                     // 计算两个矩形中心的距离
-                    const pieceCenterX = pieceRect.left + pieceRect.width / 2;
-                    const pieceCenterY = pieceRect.top + pieceRect.height / 2;
-                    const targetCenterX = targetRect.left + targetRect.width / 2;
-                    const targetCenterY = targetRect.top + targetRect.height / 2;
+                    const pieceCenterX = pieceLeft + pieceWidth / 2;
+                    const pieceCenterY = pieceTop + pieceHeight / 2;
+                    const targetCenterX = targetLeft + targetWidth / 2;
+                    const targetCenterY = targetTop + targetHeight / 2;
                     
                     const distance = Math.sqrt(
                         Math.pow(pieceCenterX - targetCenterX, 2) + 
                         Math.pow(pieceCenterY - targetCenterY, 2)
                     );
                     
-                    if (distance < 150 && distance < minDistance) {
+                    console.log("目标", index, "距离:", distance, "阈值: 100");
+                    
+                    if (distance < 100 && distance < minDistance) {
                         minDistance = distance;
                         targetIndex = index;
                     }
                 });
                 
+                console.log("最近的目标索引:", targetIndex);
+                
                 if (targetIndex !== -1) {
+                    // 获取目标位置
+                    const targetLeft = parseInt(puzzleTargets[targetIndex].style.left);
+                    const targetTop = parseInt(puzzleTargets[targetIndex].style.top);
+                    
                     // 检查目标位置是否已有拼图
                     let occupiedPieceIndex = -1;
                     puzzlePieces.forEach((otherPiece, otherIndex) => {
                         if (otherIndex !== pieceIndex) {
-                            const otherRect = otherPiece.getBoundingClientRect();
-                            const targetRect = puzzleTargets[targetIndex].getBoundingClientRect();
+                            const otherLeft = parseInt(otherPiece.style.left);
+                            const otherTop = parseInt(otherPiece.style.top);
                             
-                            // 检查其他拼图是否在目标位置
-                            const otherCenterX = otherRect.left + otherRect.width / 2;
-                            const otherCenterY = otherRect.top + otherRect.height / 2;
-                            const targetCenterX = targetRect.left + targetRect.width / 2;
-                            const targetCenterY = targetRect.top + targetRect.height / 2;
-                            
+                            // 简单检查：如果其他拼图已经在目标位置附近
                             const distance = Math.sqrt(
-                                Math.pow(otherCenterX - targetCenterX, 2) + 
-                                Math.pow(otherCenterY - targetCenterY, 2)
+                                Math.pow(otherLeft - targetLeft, 2) + 
+                                Math.pow(otherTop - targetTop, 2)
                             );
                             
-                            if (distance < 50) {
+                            if (distance < 50) { // 50像素以内认为被占据
                                 occupiedPieceIndex = otherIndex;
                             }
                         }
                     });
                     
-                    const containerRect = puzzleContainer.getBoundingClientRect();
-                    const scaleX = containerRect.width / 1920;
-                    const scaleY = containerRect.height / 1080;
-                    
-                    // 获取目标在容器内的坐标
-                    const targetLeft = parseInt(puzzleTargets[targetIndex].style.left);
-                    const targetTop = parseInt(puzzleTargets[targetIndex].style.top);
+                    console.log("被占据的拼图索引:", occupiedPieceIndex);
                     
                     if (occupiedPieceIndex !== -1) {
-                        // 交换位置
+                        // 交换位置：将被占据的拼图移到拖拽拼图的原始位置
                         const occupiedPiece = puzzlePieces[occupiedPieceIndex];
-                        
-                        // 保存被占据拼图的位置
-                        const occupiedLeft = parseInt(occupiedPiece.style.left);
-                        const occupiedTop = parseInt(occupiedPiece.style.top);
-                        
-                        // 将被占据的拼图移动到拖拽拼图的原始位置
                         occupiedPiece.style.left = `${gameState.draggedPieceOriginalPos.left}px`;
                         occupiedPiece.style.top = `${gameState.draggedPieceOriginalPos.top}px`;
                         
@@ -2834,44 +2868,54 @@
                             correct: gameState.currentPuzzlePositions[occupiedPieceIndex].correct
                         };
                         
-                        // 将拖拽的拼图移动到目标位置
-                        piece.style.left = `${targetLeft}px`;
-                        piece.style.top = `${targetTop}px`;
-                        
-                        // 更新拖拽拼图的位置记录
-                        gameState.currentPuzzlePositions[pieceIndex] = {
-                            left: targetLeft,
-                            top: targetTop,
-                            correct: gameState.currentPuzzlePositions[pieceIndex].correct
-                        };
-                    } else {
-                        // 直接移动到目标位置
-                        piece.style.left = `${targetLeft}px`;
-                        piece.style.top = `${targetTop}px`;
-                        
-                        // 更新位置记录
-                        gameState.currentPuzzlePositions[pieceIndex] = {
-                            left: targetLeft,
-                            top: targetTop,
-                            correct: gameState.currentPuzzlePositions[pieceIndex].correct
-                        };
+                        console.log("交换位置：拼图", occupiedPieceIndex, "移到", 
+                            gameState.draggedPieceOriginalPos.left, gameState.draggedPieceOriginalPos.top);
                     }
                     
-                    piece.style.zIndex = "19";
+                    // 将拖拽的拼图移到目标位置
+                    piece.style.left = `${targetLeft}px`;
+                    piece.style.top = `${targetTop}px`;
+                    
+                    // 更新拖拽拼图的位置记录
+                    gameState.currentPuzzlePositions[pieceIndex] = {
+                        left: targetLeft,
+                        top: targetTop,
+                        correct: gameState.currentPuzzlePositions[pieceIndex].correct
+                    };
+                    
+                    console.log("拼图", pieceIndex, "吸附到目标", targetIndex, 
+                        "位置:", targetLeft, targetTop);
                 } else {
                     // 如果没有吸附到目标，回到原始位置
                     piece.style.left = `${gameState.draggedPieceOriginalPos.left}px`;
                     piece.style.top = `${gameState.draggedPieceOriginalPos.top}px`;
-                    piece.style.zIndex = "19";
+                    
+                    // 更新位置记录
+                    gameState.currentPuzzlePositions[pieceIndex] = {
+                        left: gameState.draggedPieceOriginalPos.left,
+                        top: gameState.draggedPieceOriginalPos.top,
+                        correct: gameState.currentPuzzlePositions[pieceIndex].correct
+                    };
+                    
+                    console.log("拼图", pieceIndex, "回到原始位置");
                 }
                 
+                // 重置拖拽状态
+                piece.classList.remove("dragging");
+                piece.style.zIndex = "19";
+                gameState.isDragging = false;
                 gameState.draggingPiece = null;
                 gameState.draggingIndex = null;
                 gameState.draggedPieceOriginalIndex = null;
+                
+                // 检查拼图是否正确
+                checkPuzzle();
             }
         }
         
         function initPuzzle() {
+            console.log("初始化拼图");
+            
             // 保存正确的目标位置
             gameState.correctPuzzlePositions = [
                 { left: 252, top: 155, correct: 1 },
@@ -2905,7 +2949,13 @@
                 piece.style.width = "343px";
                 piece.style.height = "485px";
                 piece.classList.remove("correct");
+                
+                // 确保拼图块可拖拽
+                piece.style.pointerEvents = "auto";
+                piece.style.cursor = "move";
             });
+            
+            console.log("拼图初始化完成，位置:", gameState.currentPuzzlePositions);
         }
         
         function restorePuzzleOrder() {
@@ -2921,6 +2971,10 @@
                     piece.style.width = "343px";
                     piece.style.height = "485px";
                     piece.classList.remove("correct");
+                    
+                    // 确保拼图块可拖拽
+                    piece.style.pointerEvents = "auto";
+                    piece.style.cursor = "move";
                 });
             } else {
                 // 如果没有保存的顺序，重新初始化

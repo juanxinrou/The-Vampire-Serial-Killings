@@ -167,12 +167,21 @@
             cursor: move;
             z-index: 19;
             transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease, opacity 0.5s ease;
+            /* 添加移动端优化 */
+            touch-action: none; /* 禁止默认触摸行为 */
+            -webkit-touch-callout: none; /* 禁止长按菜单 */
+            -webkit-user-select: none; /* 禁止文本选择 */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
         .puzzle-piece.dragging {
             opacity: 0.9;
             z-index: 30;
             transform: scale(1.05);
+            /* 防止拖拽时出现选中效果 */
+            -webkit-tap-highlight-color: transparent;
         }
         
         .puzzle-piece.correct {
@@ -214,28 +223,28 @@
         }
 
         /* 高光特效 */
-.highlight-effect {
-    position: absolute;
-    border: 3px solid #FFD700;
-    border-radius: 5px;
-    box-shadow: 0 0 20px 5px #FFD700, 0 0 30px 10px rgba(255, 215, 0, 0.5);
-    z-index: 18;
-    pointer-events: none;
-    opacity: 0;
-    display: none;  /* 确保初始不显示 */
-    animation: highlightPulse 1.5s ease-in-out infinite alternate;
-}
+        .highlight-effect {
+            position: absolute;
+            border: 3px solid #FFD700;
+            border-radius: 5px;
+            box-shadow: 0 0 20px 5px #FFD700, 0 0 30px 10px rgba(255, 215, 0, 0.5);
+            z-index: 18;
+            pointer-events: none;
+            opacity: 0;
+            display: none;  /* 确保初始不显示 */
+            animation: highlightPulse 1.5s ease-in-out infinite alternate;
+        }
 
-@keyframes highlightPulse {
-    0% {
-        opacity: 0.3;
-        box-shadow: 0 0 10px 2px #FFD700, 0 0 15px 5px rgba(255, 215, 0, 0.3);
-    }
-    100% {
-        opacity: 0.8;
-        box-shadow: 0 0 20px 5px #FFD700, 0 0 30px 10px rgba(255, 215, 0, 0.5);
-    }
-}
+        @keyframes highlightPulse {
+            0% {
+                opacity: 0.3;
+                box-shadow: 0 0 10px 2px #FFD700, 0 0 15px 5px rgba(255, 215, 0, 0.3);
+            }
+            100% {
+                opacity: 0.8;
+                box-shadow: 0 0 20px 5px #FFD700, 0 0 30px 10px rgba(255, 215, 0, 0.5);
+            }
+        }
         
         /* 匿名信 */
         .anonymous-letter {
@@ -2546,7 +2555,7 @@
                 console.log("输入框失去焦点，isInputActive = false");
             });
             
-            // 拼图拖拽事件
+            // 拼图拖拽事件 - 现在使用新的函数
             setupPuzzleDragEvents();
             
             // 页面点击事件
@@ -2638,34 +2647,80 @@
         // ========== 拼图功能 ==========
         function setupPuzzleDragEvents() {
             puzzlePieces.forEach((piece, index) => {
+                // 鼠标事件监听
                 piece.addEventListener('mousedown', function(e) {
-                    if (gameState.currentPhase !== 2) return;
-                    
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    gameState.isDragging = true;
-                    gameState.draggingPiece = piece;
-                    gameState.draggingIndex = index;
-                    gameState.draggedPieceOriginalIndex = index;
-                    
-                    const rect = piece.getBoundingClientRect();
-                    
-                    gameState.dragOffsetX = e.clientX - rect.left;
-                    gameState.dragOffsetY = e.clientY - rect.top;
-                    
-                    piece.classList.add("dragging");
-                    piece.style.zIndex = "30";
-                    
-                    // 保存原始位置
-                    gameState.draggedPieceOriginalPos = {
-                        left: parseInt(piece.style.left),
-                        top: parseInt(piece.style.top)
-                    };
+                    startDrag(e, index);
+                });
+                
+                // 触摸事件监听（移动端）
+                piece.addEventListener('touchstart', function(e) {
+                    e.preventDefault(); // 防止滚动
+                    const touch = e.touches[0];
+                    startDrag(touch, index);
                 });
             });
             
+            // 鼠标移动事件
             document.addEventListener('mousemove', function(e) {
+                doDrag(e);
+            });
+            
+            // 触摸移动事件（移动端）
+            document.addEventListener('touchmove', function(e) {
+                e.preventDefault(); // 防止页面滚动
+                const touch = e.touches[0];
+                doDrag(touch);
+            }, { passive: false }); // 必须设置为非passive才能调用preventDefault
+            
+            // 鼠标松开事件
+            document.addEventListener('mouseup', function() {
+                stopDrag();
+            });
+            
+            // 触摸结束事件（移动端）
+            document.addEventListener('touchend', function() {
+                stopDrag();
+            });
+            
+            // 触摸取消事件（移动端）
+            document.addEventListener('touchcancel', function() {
+                stopDrag();
+            });
+            
+            // 开始拖拽（通用函数）
+            function startDrag(e, index) {
+                if (gameState.currentPhase !== 2) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                gameState.isDragging = true;
+                gameState.draggingPiece = puzzlePieces[index];
+                gameState.draggingIndex = index;
+                gameState.draggedPieceOriginalIndex = index;
+                
+                // 获取设备像素比，处理缩放
+                const rect = gameState.draggingPiece.getBoundingClientRect();
+                
+                // 获取触摸/鼠标位置
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                
+                gameState.dragOffsetX = clientX - rect.left;
+                gameState.dragOffsetY = clientY - rect.top;
+                
+                gameState.draggingPiece.classList.add("dragging");
+                gameState.draggingPiece.style.zIndex = "30";
+                
+                // 保存原始位置
+                gameState.draggedPieceOriginalPos = {
+                    left: parseInt(gameState.draggingPiece.style.left) || 0,
+                    top: parseInt(gameState.draggingPiece.style.top) || 0
+                };
+            }
+            
+            // 执行拖拽（通用函数）
+            function doDrag(e) {
                 if (!gameState.isDragging || !gameState.draggingPiece) return;
                 
                 e.preventDefault();
@@ -2674,9 +2729,13 @@
                 const scaleX = containerRect.width / 1920;
                 const scaleY = containerRect.height / 1080;
                 
+                // 获取触摸/鼠标位置
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+                
                 // 转换为容器内坐标
-                const x = (e.clientX - containerRect.left) / scaleX - gameState.dragOffsetX;
-                const y = (e.clientY - containerRect.top) / scaleY - gameState.dragOffsetY;
+                const x = (clientX - containerRect.left) / scaleX - gameState.dragOffsetX;
+                const y = (clientY - containerRect.top) / scaleY - gameState.dragOffsetY;
                 
                 const maxX = 1920 - gameState.draggingPiece.offsetWidth;
                 const maxY = 1080 - gameState.draggingPiece.offsetHeight;
@@ -2686,9 +2745,10 @@
                 
                 gameState.draggingPiece.style.left = `${clampedX}px`;
                 gameState.draggingPiece.style.top = `${clampedY}px`;
-            });
+            }
             
-            document.addEventListener('mouseup', function() {
+            // 停止拖拽（通用函数）
+            function stopDrag() {
                 if (!gameState.isDragging || !gameState.draggingPiece) return;
                 
                 gameState.isDragging = false;
@@ -2808,7 +2868,7 @@
                 gameState.draggingPiece = null;
                 gameState.draggingIndex = null;
                 gameState.draggedPieceOriginalIndex = null;
-            });
+            }
         }
         
         function initPuzzle() {
